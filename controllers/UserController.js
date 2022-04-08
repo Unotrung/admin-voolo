@@ -93,7 +93,7 @@ const UserController = {
                 if (!valiPassword) {
                     return res.status(404).json({ message: "Wrong password. Please try again !", status: false });
                 }
-                if (user && valiPin) {
+                if (user && valiPassword) {
                     const { password, ...others } = user._doc;
                     return res.status(200).json({
                         message: "Login successfully",
