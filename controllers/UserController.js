@@ -43,11 +43,10 @@ const UserController = {
                     await user.save()
                         .then((data) => {
                             return res.status(201).json({
-                                // data: {
-                                //     id: data._id,
-                                //     username: data.username,
-                                // },
-                                data: data,
+                                data: {
+                                    id: data._id,
+                                    username: data.username,
+                                },
                                 message: "Add user successfully",
                                 status: true
                             })
