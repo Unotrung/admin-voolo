@@ -19,6 +19,6 @@ const UserSchema = new mongoose.Schema({
 mongoose.SchemaTypes.String.set('trim', true);
 
 const secret = process.env.SECRET_MONGOOSE;
-UserSchema.plugin(encrypt, { secret: secret, encryptedFields: ['username password'] });
+UserSchema.plugin(encrypt, { secret: secret, encryptedFields: ['username', 'password'] });
 
 module.exports = mongoose.model('User', UserSchema);
