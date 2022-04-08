@@ -37,7 +37,7 @@ mongoose.connect(process.env.MONGODB_URL, function (err) {
 }
 )
 
-app.use('/v1/admin/', userRoute);
+app.use('/v1/admin', userRoute);
 
 app.use((req, res, next) => {
     next(createError.NotFound('This route dose not exists !'));

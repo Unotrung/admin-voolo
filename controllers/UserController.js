@@ -43,10 +43,11 @@ const UserController = {
                     await user.save()
                         .then((data) => {
                             return res.status(201).json({
-                                data: {
-                                    id: data._id,
-                                    username: data.username,
-                                },
+                                // data: {
+                                //     id: data._id,
+                                //     username: data.username,
+                                // },
+                                data: data,
                                 message: "Add user successfully",
                                 status: true
                             })
@@ -88,8 +89,8 @@ const UserController = {
                 if (!user) {
                     return res.status(404).json({ message: "Wrong username. Please try again !", status: false });
                 }
-                const valiPasswor = await bcrypt.compare(password, user.password);
-                if (!valiPasswor) {
+                const valiPassword = await bcrypt.compare(password, user.password);
+                if (!valiPassword) {
                     return res.status(404).json({ message: "Wrong password. Please try again !", status: false });
                 }
                 if (user && valiPin) {
