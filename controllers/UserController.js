@@ -115,11 +115,11 @@ const UserController = {
 
     search: async (req, res, next) => {
         const customers = await Customer.find();
-        const search = req.params.search;
+        const search = req.query.search;
         if (search !== "" && search !== null) {
             const data = customers.find(x => x.name === search || x.phone === search || x.createdAt === search);
             if (data) {
-                return res.status(404).json({
+                return res.status(200).json({
                     message: "Get customer successfully !",
                     data: data,
                     status: true
