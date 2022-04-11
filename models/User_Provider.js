@@ -11,16 +11,13 @@ const User_ProviderSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: [true, 'Password is required'],
+        required: [true, 'Password is required']
     },
-    isAdmin: {
-        type: Boolean
-    }
 }, { timestamps: true });
 
 mongoose.SchemaTypes.String.set('trim', true);
 
 const secret = process.env.SECRET_MONGOOSE;
-User_ProviderSchema.plugin(encrypt, { secret: secret, encryptedFields: ['username', 'password', 'isAdmin'] });
+User_ProviderSchema.plugin(encrypt, { secret: secret, encryptedFields: ['username', 'password'] });
 
 module.exports = mongoose.model('User_Provider', User_ProviderSchema);
