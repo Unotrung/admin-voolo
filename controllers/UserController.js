@@ -44,7 +44,7 @@ const UserController = {
             let isAdmin = req.body.isAdmin;
             if (username !== "" && username !== null && password !== "" && password !== null && isAdmin !== true && isAdmin !== false) {
                 const users = await User_Provider.find();
-                const user = users.find(x => x.username === username);
+                const user = users.find(x => x.username.toLowerCase() === username.toLowerCase());
                 if (!user) {
                     const salt = await bcrypt.genSalt(10);
                     const hashed = await bcrypt.hash(password, salt);
@@ -93,7 +93,7 @@ const UserController = {
             let password = req.body.password;
             if (username !== "" && username !== null && password !== "" && password !== null) {
                 const users = await User_Provider.find();
-                const user = users.find(x => x.username === username);
+                const user = users.find(x => x.username.toLowerCase() === username.toLowerCase());
                 if (!user) {
                     return res.status(404).json({ message: "Wrong username. Please try again !", status: false });
                 }
@@ -127,13 +127,14 @@ const UserController = {
             const customers = await Bnpl_Personal.find();
             const search = req.query.search;
             if (search !== "" && search !== null) {
-                const data = customers.find(x => x.name === search || x.phone === search || x.createdAt === search);
+                const data = customers.find(x => x.name.toLowerCase() === search.toLowerCase() || x.phone === search || x.createdAt === search);
                 console.log("Search: ", search);
                 console.log("Data: ", data);
                 if (data) {
+                    let { password, isAdmin, __v, ...others } = data._doc;
                     return res.status(200).json({
                         message: "Get customer successfully !",
-                        data: data,
+                        data: { ...others },
                         status: true
                     })
                 }
