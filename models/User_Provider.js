@@ -8,11 +8,13 @@ const User_ProviderSchema = new mongoose.Schema({
     username: {
         type: String,
         required: [true, 'Username is required'],
-        unique: [true, 'Username is already exists']
     },
     password: {
         type: String,
         required: [true, 'Password is required']
+    },
+    isAdmin: {
+        type: Boolean
     }
 }, { timestamps: true });
 

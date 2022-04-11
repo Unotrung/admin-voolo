@@ -47,27 +47,32 @@ const bnpl_personalSchema = new mongoose.Schema({
         required: [true, 'Ward is required'],
     },
     street: {
-        type: String,
-        required: [true, 'Street is required'],
+        type: String
     },
     personal_title_ref: {
         type: String,
+        required: [true, 'Personal Title Ref is required'],
         enum: {
             values: ['Ông', 'Bà'],
             message: 'Personal title ref is only allowed Ông or Bà'
-        }
+        },
     },
     name_ref: {
         type: String,
+        required: [true, 'Name Ref is required'],
     },
     phone_ref: {
         type: String,
         required: [true, 'Phone Ref is required'],
     },
+    providers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'bnpl_provider' }],
+    items: [{ type: mongoose.Schema.Types.ObjectId, ref: 'item' }],
+    tenor: { type: mongoose.Schema.Types.ObjectId, ref: 'tenor' },
+    credit_limit: {
+        type: Number,
+    },
 
 }, { timestamps: true });
-
-mongoose.SchemaTypes.String.set('trim', true);
 
 const secret = process.env.SECRET_MONGOOSE;
 bnpl_personalSchema.plugin(encrypt, { secret: secret, encryptedFields: ['name', 'phone', 'citizenId', 'name_ref', 'phone_ref'] });
