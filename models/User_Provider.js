@@ -13,9 +13,6 @@ const User_ProviderSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Password is required']
     },
-    isAdmin: {
-        type: Boolean
-    }
 }, { timestamps: true });
 
 mongoose.SchemaTypes.String.set('trim', true);
