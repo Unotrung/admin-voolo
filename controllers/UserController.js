@@ -1,12 +1,15 @@
-const User = require('../models/User');
-const Customer = require('../models/Bnpl_Customer');
+const User_Provider = require('../models/User_Provider');
+const Bnpl_Personal = require('../models/Bnpl_Personals');
 const bcrypt = require('bcrypt');
+const dotenv = require('dotenv');
+
+dotenv.config();
 
 const UserController = {
 
     getAllBNPL: async (req, res, next) => {
         try {
-            const users = await User.find();
+            const users = await User_Provider.find();
             if (users.length > 0) {
                 return res.status(200).json({
                     count: users.length,
@@ -34,12 +37,12 @@ const UserController = {
             let username = req.body.username;
             let password = req.body.password;
             if (username !== "" && username !== null && password !== "" && password !== null) {
-                const users = await User.find();
+                const users = await User_Provider.find();
                 const user = users.find(x => x.username === username);
                 if (!user) {
                     const salt = await bcrypt.genSalt(10);
                     const hashed = await bcrypt.hash(password, salt);
-                    const user = await new User({ username: username, password: hashed, isAdmin: true });
+                    const user = await new User_Provider({ username: username, password: hashed, isAdmin: true });
                     await user.save()
                         .then((data) => {
                             return res.status(201).json({
@@ -83,7 +86,7 @@ const UserController = {
             let username = req.body.username;
             let password = req.body.password;
             if (username !== "" && username !== null && password !== "" && password !== null) {
-                const users = await User.find();
+                const users = await User_Provider.find();
                 const user = users.find(x => x.username === username);
                 if (!user) {
                     return res.status(404).json({ message: "Wrong username. Please try again !", status: false });
@@ -114,32 +117,36 @@ const UserController = {
     },
 
     search: async (req, res, next) => {
-        const customers = await Customer.find();
-        console.log("Customers: ", customers);
-        const search = req.query.search;
-        if (search !== "" && search !== null) {
-            const data = customers.find(x => x.name === search || x.phone === search || x.createdAt === search);
-            console.log("Search: ", search);
-            console.log("Data: ", data);
-            if (data) {
-                return res.status(200).json({
-                    message: "Get customer successfully !",
-                    data: data,
-                    status: true
-                })
+        try {
+            const customers = await Bnpl_Personal.find();
+            const search = req.query.search;
+            if (search !== "" && search !== null) {
+                const data = customers.find(x => x.name === search || x.phone === search || x.createdAt === search);
+                console.log("Search: ", search);
+                console.log("Data: ", data);
+                if (data) {
+                    return res.status(200).json({
+                        message: "Get customer successfully !",
+                        data: data,
+                        status: true
+                    })
+                }
+                else {
+                    return res.status(404).json({
+                        message: "Can not find customer !",
+                        status: false
+                    })
+                }
             }
             else {
                 return res.status(404).json({
-                    message: "Can not find customer !",
+                    message: "Please enter keyword to search !",
                     status: false
                 })
             }
         }
-        else {
-            return res.status(404).json({
-                message: "Please enter keyword to search !",
-                status: false
-            })
+        catch (err) {
+            next(err);
         }
     }
 

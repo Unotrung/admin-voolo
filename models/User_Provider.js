@@ -4,7 +4,7 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
-const UserSchema = new mongoose.Schema({
+const User_ProviderSchema = new mongoose.Schema({
     username: {
         type: String,
         required: [true, 'Username is required'],
@@ -19,6 +19,6 @@ const UserSchema = new mongoose.Schema({
 mongoose.SchemaTypes.String.set('trim', true);
 
 const secret = process.env.SECRET_MONGOOSE;
-UserSchema.plugin(encrypt, { secret: secret, encryptedFields: ['username', 'password'] });
+User_ProviderSchema.plugin(encrypt, { secret: secret, encryptedFields: ['username', 'password'] });
 
-module.exports = mongoose.model('User', UserSchema);
+module.exports = mongoose.model('User_Provider', User_ProviderSchema);
