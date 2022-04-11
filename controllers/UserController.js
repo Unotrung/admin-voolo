@@ -42,13 +42,13 @@ const UserController = {
             let username = req.body.username;
             let password = req.body.password;
             let isAdmin = req.body.isAdmin;
-            if (username !== "" && username !== null && password !== "" && password !== null && isAdmin !== true && isAdmin !== false) {
+            if (username !== "" && username !== null && password !== "" && password !== null) {
                 const users = await User_Provider.find();
                 const user = users.find(x => x.username === username);
                 if (!user) {
                     const salt = await bcrypt.genSalt(10);
                     const hashed = await bcrypt.hash(password, salt);
-                    const user = await new User_Provider({ username: username, password: hashed });
+                    const user = await new User_Provider({ username: username, password: hashed, isAdmin: true });
                     await user.save()
                         .then((data) => {
                             return res.status(201).json({
@@ -102,7 +102,7 @@ const UserController = {
                     return res.status(404).json({ message: "Wrong password. Please try again !", status: false });
                 }
                 if (user && valiPassword) {
-                    const { password, isAdmin, __v, ...others } = user._doc;
+                    const { password, __v, ...others } = user._doc;
                     return res.status(200).json({
                         message: "Login successfully",
                         data: { ...others },
