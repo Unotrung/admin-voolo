@@ -127,14 +127,16 @@ const UserController = {
             const customers = await Bnpl_Personal.find();
             const search = req.query.search;
             if (search !== "" && search !== null) {
-                const data = customers.find(x => x.name.toLowerCase() === search.toLowerCase() || x.phone === search || x.createdAt === search);
-                console.log("Search: ", search);
-                console.log("Data: ", data);
-                if (data) {
-                    let { password, isAdmin, __v, ...others } = data._doc;
+                let data = customers.filter(x => x.name.toLowerCase() === search.toLowerCase() || x.phone === search || x.createdAt.toISOString().slice(0, 10) === search);
+                if (data.length > 0) {
+                    let result = [];
+                    data.map((customer, index) => {
+                        let { pin, __v, ...others } = customer._doc;
+                        result.push({ ...others });
+                    })
                     return res.status(200).json({
                         message: "Get customer successfully !",
-                        data: { ...others },
+                        data: result,
                         status: true
                     })
                 }
