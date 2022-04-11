@@ -37,7 +37,7 @@ const UserController = {
             let username = req.body.username;
             let password = req.body.password;
             let isAdmin = req.body.isAdmin;
-            if (username !== "" && username !== null && password !== "" && password !== null && !isAdmin) {
+            if (username !== "" && username !== null && password !== "" && password !== null && isAdmin !== true && isAdmin !== false) {
                 const users = await User_Provider.find();
                 const user = users.find(x => x.username === username);
                 if (!user) {
