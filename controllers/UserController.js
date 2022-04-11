@@ -10,10 +10,10 @@ const UserController = {
     getAllBNPL: async (req, res, next) => {
         try {
             const users = await User_Provider.find();
-            let result = null;
+            let result = [];
             users.map((user, index) => {
                 let { password, isAdmin, __v, ...others } = user._doc;
-                result += { ...others };
+                result.push({ ...others });
             })
             if (users.length > 0) {
                 return res.status(200).json({
@@ -25,7 +25,7 @@ const UserController = {
             }
             else {
                 return res.status(200).json({
-                    count: 0,
+                    count: users.length,
                     data: null,
                     message: "List user is empty ",
                     status: true
