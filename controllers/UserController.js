@@ -36,13 +36,14 @@ const UserController = {
         try {
             let username = req.body.username;
             let password = req.body.password;
-            if (username !== "" && username !== null && password !== "" && password !== null) {
+            let isAdmin = req.body.isAdmin;
+            if (username !== "" && username !== null && password !== "" && password !== null && !isAdmin) {
                 const users = await User_Provider.find();
                 const user = users.find(x => x.username === username);
                 if (!user) {
                     const salt = await bcrypt.genSalt(10);
                     const hashed = await bcrypt.hash(password, salt);
-                    const user = await new User_Provider({ username: username, password: hashed, isAdmin: true });
+                    const user = await new User_Provider({ username: username, password: hashed });
                     await user.save()
                         .then((data) => {
                             return res.status(201).json({
