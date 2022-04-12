@@ -39,27 +39,20 @@ mongoose.connect(process.env.MONGODB_URL, function (err) {
 }
 )
 
-const username = "liverpoolkien911@gmail.com";
-const password = "liverpoolkien123";
-
 app.post("/sendMail", async (req, res) => {
     const email = req.body.email;
-
     let transporter = nodemailer.createTransport({
-        service: "smtp.gmail.com",
-        port: 587,
-        secure: false,
+        service: "hotmail",
         auth: {
-            user: username,
-            pass: password,
+            user: process.env.USER_EMAIL,
+            pass: process.env.PASSWORD_EMAIL,
         },
         tls: {
             rejectUnauthorized: false,
         }
     });
-
     let mailOptions = {
-        from: username,
+        from: process.env.USER_EMAIL,
         to: email,
         subject: "Hello ✔",
         text: "Hello Nguyen Trung Kien",
