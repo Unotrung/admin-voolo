@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const encrypt = require('mongoose-encryption');
-const dotenv = require('dotenv')
+const dotenv = require('dotenv');
 
 dotenv.config();
 

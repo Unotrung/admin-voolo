@@ -137,7 +137,11 @@ const UserController = {
                     return res.status(200).json({
                         message: "Get customer successfully !",
                         data: result,
-                        status: true
+                        status: true,
+                        draw: 1,
+                        recordsTotal: 1,
+                        recordsFiltered: 1,
+                        input: {}
                     })
                 }
                 else {
@@ -149,7 +153,7 @@ const UserController = {
             }
             else {
                 return res.status(404).json({
-                    message: "Please enter keyword to search !",
+                    data: [],
                     status: false
                 })
             }

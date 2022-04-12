@@ -22,6 +22,7 @@
     "http-errors": "^2.0.0",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.2.10",
+    "mongoose-datatable": "^3.2.1",
     "mongoose-encryption": "^2.1.2",
     "morgan": "^1.10.0",
     "nodemon": "^2.0.15",
