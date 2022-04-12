@@ -8,7 +8,6 @@ const cookieParser = require('cookie-parser');
 const path = require('path');
 const format = require('date-format');
 const createError = require('http-errors');
-const nodemailer = require("nodemailer");
 const userRoute = require('./routers/UserRouter');
 
 dotenv.config();
@@ -38,43 +37,6 @@ mongoose.connect(process.env.MONGODB_URL, function (err) {
     }
 }
 )
-
-app.post("/sendMail", async (req, res) => {
-    const email = req.body.email;
-    let transporter = nodemailer.createTransport({
-        service: "hotmail",
-        auth: {
-            user: process.env.USER_EMAIL,
-            pass: process.env.PASSWORD_EMAIL,
-        },
-        tls: {
-            rejectUnauthorized: false,
-        }
-    });
-    let mailOptions = {
-        from: process.env.USER_EMAIL,
-        to: email,
-        subject: "Hello ✔",
-        text: "Hello Nguyen Trung Kien",
-        html: "<b>Hello Nguyen Trung Kien</b>",
-    }
-
-    await transporter.sendMail(mailOptions, (err) => {
-        if (err) {
-            return res.status(500).json({
-                message: `Fail to send email to ${email}!`,
-                status: false,
-                err: err
-            });
-        }
-        else {
-            return res.status(500).json({
-                message: `Success to send email to ${email}!`,
-                status: true,
-            });
-        }
-    });
-})
 
 app.use('/v1/admin', userRoute);
 
