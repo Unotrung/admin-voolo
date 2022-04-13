@@ -138,7 +138,7 @@ const UserController = {
                     result = customers.filter(x => x.phone === value);
                 }
                 else if (search === "createdAt") {
-                    result = await Bnpl_Personal.find({ createdAt: { $gte: from, $lt: to } });
+                    result = await Bnpl_Personal.find({ createdAt: { $gte: new Date(from), $lte: new Date(to) } });
                 }
                 return res.status(200).json({
                     message: "Get customer successfully",
