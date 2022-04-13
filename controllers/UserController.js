@@ -69,7 +69,7 @@ const UserController = {
                         })
                 }
                 else {
-                    return res.status(400).json({
+                    return res.status(409).json({
                         message: "User is already exists",
                         status: true
                     })
@@ -140,15 +140,28 @@ const UserController = {
                 else if (search === "createdAt") {
                     result = await Bnpl_Personal.find({ createdAt: { $gte: from, $lte: (to + 'T23:59:59.999Z') } });
                 }
-                return res.status(200).json({
-                    message: "Get customer successfully",
-                    data: result,
-                    status: true,
-                    draw: 1,
-                    recordsTotal: 1,
-                    recordsFiltered: 1,
-                    input: {}
-                })
+                if (result) {
+                    return res.status(200).json({
+                        message: "Get customer successfully",
+                        data: result,
+                        status: true,
+                        draw: 1,
+                        recordsTotal: 1,
+                        recordsFiltered: 1,
+                        input: {}
+                    })
+                }
+                else {
+                    return res.status(404).json({
+                        message: `This ${search} is not exists !`,
+                        data: [],
+                        status: false,
+                        draw: 1,
+                        recordsTotal: 0,
+                        recordsFiltered: 0,
+                        input: {}
+                    })
+                }
             }
             else {
                 return res.status(404).json({
