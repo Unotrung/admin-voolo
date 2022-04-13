@@ -5,6 +5,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const User_ProviderSchema = new mongoose.Schema({
+
     username: {
         type: String,
         required: [true, 'Username is required'],
@@ -13,6 +14,7 @@ const User_ProviderSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Password is required']
     },
+
 }, { timestamps: true });
 
 mongoose.SchemaTypes.String.set('trim', true);

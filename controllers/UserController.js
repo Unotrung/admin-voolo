@@ -124,37 +124,40 @@ const UserController = {
 
     search: async (req, res, next) => {
         try {
-            const customers = await Bnpl_Personal.find();
-            const search = req.query.search;
-            if (search !== "" && search !== null) {
-                let data = customers.filter(x => x.name.toLowerCase() === search.toLowerCase() || x.phone === search || x.createdAt.toISOString().slice(0, 10) === search);
-                if (data.length > 0) {
-                    let result = [];
-                    data.map((customer, index) => {
-                        let { pin, __v, ...others } = customer._doc;
-                        result.push({ ...others });
-                    })
-                    return res.status(200).json({
-                        message: "Get customer successfully !",
-                        data: result,
-                        status: true,
-                        draw: 1,
-                        recordsTotal: 1,
-                        recordsFiltered: 1,
-                        input: {}
-                    })
+            let search = req.query.search;
+            let value = req.query.value;
+            let from = req.query.from;
+            let to = req.query.to;
+            let customers = await Bnpl_Personal.find();
+            if (customers && search !== "" && search !== null && ((value !== "" && value !== null) || (from !== "" && from !== null && to !== "" && to !== null))) {
+                let result = null;
+                if (search === "name") {
+                    result = customers.filter(x => x.name.toLowerCase() === value.toLowerCase());
                 }
-                else {
-                    return res.status(404).json({
-                        message: "Can not find customer !",
-                        status: false
-                    })
+                else if (search === "phone") {
+                    result = customers.filter(x => x.phone === value);
                 }
+                else if (search === "createdAt") {
+                    result = await Bnpl_Personal.find({ createdAt: { $gte: (from), $lte: (to) } });
+                }
+                return res.status(200).json({
+                    message: "Get customer successfully !",
+                    data: result,
+                    status: true,
+                    draw: 1,
+                    recordsTotal: 1,
+                    recordsFiltered: 1,
+                    input: {}
+                })
             }
             else {
                 return res.status(404).json({
                     data: [],
-                    status: false
+                    status: false,
+                    draw: 1,
+                    recordsTotal: 1,
+                    recordsFiltered: 1,
+                    input: {}
                 })
             }
         }
