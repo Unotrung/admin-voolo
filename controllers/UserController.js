@@ -361,21 +361,27 @@ const UserController = {
             let user_bnpls = await Bnpl_Personal.find();
 
             let user_eap = user_eaps.filter(x => x.email === email || x.phone === phone);
+            console.log("User Eap: ", user_eap);
             if (user_eap.length > 0) {
+                console.log('User eap length: ', user_eap.length);
                 user_eap_related = user_bnpls.filter(x => x.phone === user_eap.phone);
+                console.log("User Eap Related: ", user_eap_related);
             }
 
             let user_bnpl = user_bnpls.filter(x => x.citizenId === nid || x.phone === phone && x.name.toLowerCase() === name.toLowerCase());
+            console.log("User Bnpl: ", user_bnpl);
             if (user_bnpl.length > 0) {
+                console.log('User eap length: ', user_bnpl.length);
                 user_bnpl_related = user_eaps.filter(x => x.phone === user_bnpl.phone);
+                console.log("User Bnpl Related: ", user_bnpl_related);
             }
 
             if (user_eap && user_bnpl) {
                 return res.status(200).json({
                     message: "Get customer successfully",
                     data: {
-                        EAP: user_eap || user_eap_related,
-                        BNPL: user_bnpl || user_bnpl_related
+                        BNPL: user_bnpl || user_eap_related,
+                        EAP: user_eap || user_bnpl_related,
                     },
                     status: true,
                     draw: 1,
@@ -447,6 +453,74 @@ const UserController = {
             else {
                 return res.status(400).json({
                     message: "Can not find id to delete user !",
+                    status: true,
+                    errorStatus: err.status || 500,
+                    errorMessage: err.message,
+                })
+            }
+        }
+        catch (err) {
+            next(err);
+        }
+    },
+
+    deleteAccountBNPL: async (req, res, next) => {
+        try {
+            let phone = req.body.phone;
+            if (phone !== null && phone != '') {
+                await Bnpl_Personal.findOneAndDelete({ phone: phone })
+                    .then(() => {
+                        return res.status(201).json({
+                            message: "Delete user successfully",
+                            status: true
+                        })
+                    })
+                    .catch((err) => {
+                        return res.status(409).json({
+                            message: "Delete user failure",
+                            status: false,
+                            errorStatus: err.status || 500,
+                            errorMessage: err.message,
+                        })
+                    })
+            }
+            else {
+                return res.status(400).json({
+                    message: "Can not find phone to delete user !",
+                    status: true,
+                    errorStatus: err.status || 500,
+                    errorMessage: err.message,
+                })
+            }
+        }
+        catch (err) {
+            next(err);
+        }
+    },
+
+    deleteAccountEAP: async (req, res, next) => {
+        try {
+            let phone = req.body.phone;
+            if (phone !== null && phone != '') {
+                await EAP_Customer.findOneAndDelete({ phone: phone })
+                    .then(() => {
+                        return res.status(201).json({
+                            message: "Delete user successfully",
+                            status: true
+                        })
+                    })
+                    .catch((err) => {
+                        return res.status(409).json({
+                            message: "Delete user failure",
+                            status: false,
+                            errorStatus: err.status || 500,
+                            errorMessage: err.message,
+                        })
+                    })
+            }
+            else {
+                return res.status(400).json({
+                    message: "Can not find phone to delete user !",
                     status: true,
                     errorStatus: err.status || 500,
                     errorMessage: err.message,
