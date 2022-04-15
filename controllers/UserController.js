@@ -1,5 +1,6 @@
 const User_Provider = require('../models/User_Provider');
 const Bnpl_Personal = require('../models/Bnpl_Personals');
+const EAP_Customer = require('../models/EAP_Customer');
 const bcrypt = require('bcrypt');
 const dotenv = require('dotenv');
 
@@ -7,7 +8,7 @@ dotenv.config();
 
 const UserController = {
 
-    getAllBNPL: async (req, res, next) => {
+    getAllUserProvider: async (req, res, next) => {
         try {
             const users = await User_Provider.find();
             let result = [];
@@ -19,7 +20,67 @@ const UserController = {
                 return res.status(200).json({
                     count: users.length,
                     data: result,
+                    message: "Get list user success",
+                    status: true
+                })
+            }
+            else {
+                return res.status(200).json({
+                    count: users.length,
+                    data: null,
+                    message: "List user is empty ",
+                    status: true
+                })
+            }
+        }
+        catch (err) {
+            next(err);
+        }
+    },
+
+    getAllBNPL: async (req, res, next) => {
+        try {
+            const users = await Bnpl_Personal.find();
+            let result = [];
+            users.map((user, index) => {
+                let { providers, items, tenor, credit_limit, __v, ...others } = user._doc;
+                result.push({ ...others });
+            })
+            if (users.length > 0) {
+                return res.status(200).json({
+                    count: users.length,
+                    data: result,
                     message: "Get list user bnpl success",
+                    status: true
+                })
+            }
+            else {
+                return res.status(200).json({
+                    count: users.length,
+                    data: null,
+                    message: "List user is empty ",
+                    status: true
+                })
+            }
+        }
+        catch (err) {
+            next(err);
+        }
+    },
+
+    getAllEAP: async (req, res, next) => {
+        try {
+            const users = await EAP_Customer.find();
+            let result = [];
+            users.map((user, index) => {
+                let { password, __v, ...others } = user._doc;
+                result.push({ ...others });
+            })
+            if (users.length > 0) {
+                return res.status(200).json({
+                    count: users.length,
+                    data: result,
+                    message: "Get list user eap success",
                     status: true
                 })
             }
@@ -62,9 +123,10 @@ const UserController = {
                         })
                         .catch((err) => {
                             return res.status(409).json({
-                                err: err,
                                 message: "Add user failure",
-                                status: false
+                                status: false,
+                                errorStatus: err.status || 500,
+                                errorMessage: err.message,
                             })
                         })
                 }
@@ -76,7 +138,7 @@ const UserController = {
                 }
             }
             else {
-                return res.status(404).json({
+                return res.status(400).json({
                     message: "Please enter your username and password !",
                     status: false
                 })
@@ -111,7 +173,7 @@ const UserController = {
                 }
             }
             else {
-                return res.status(404).json({
+                return res.status(400).json({
                     message: "Please enter your username and password !",
                     status: false
                 })
@@ -122,7 +184,7 @@ const UserController = {
         }
     },
 
-    search: async (req, res, next) => {
+    searchBNPL: async (req, res, next) => {
         try {
             let search = req.query.search;
             let value = req.query.value;
@@ -164,13 +226,141 @@ const UserController = {
                 }
             }
             else {
-                return res.status(404).json({
+                return res.status(200).json({
                     data: [],
                     status: true,
                     draw: 1,
                     recordsTotal: 0,
                     recordsFiltered: 0,
                     input: {}
+                })
+            }
+        }
+        catch (err) {
+            next(err);
+        }
+    },
+
+    searchEAP: async (req, res, next) => {
+        try {
+            let search = req.query.search;
+            let value = req.query.value;
+            let from = req.query.from;
+            let to = req.query.to;
+            let customers = await EAP_Customer.find();
+            if (customers && search !== "" && search !== null && ((value !== "" && value !== null) || (from !== "" && from !== null && to !== "" && to !== null))) {
+                let result = null;
+                if (search === "name") {
+                    result = customers.filter(x => x.username.toLowerCase() === value.toLowerCase());
+                }
+                else if (search === "phone") {
+                    result = customers.filter(x => x.phone === value);
+                }
+                else if (search === "email") {
+                    result = customers.filter(x => x.email.toLowerCase() === value.toLowerCase());
+                }
+                else if (search === "createdAt") {
+                    result = await EAP_Customer.find({ createdAt: { $gte: from, $lte: (to + 'T23:59:59.999Z') } });
+                }
+                if (result.length > 0) {
+                    return res.status(200).json({
+                        message: "Get customer successfully",
+                        data: result,
+                        status: true,
+                        draw: 1,
+                        recordsTotal: 1,
+                        recordsFiltered: 1,
+                        input: {}
+                    })
+                }
+                else {
+                    return res.status(404).json({
+                        message: `This ${search} is not exists !`,
+                        data: [],
+                        status: true,
+                        draw: 1,
+                        recordsTotal: 0,
+                        recordsFiltered: 0,
+                        input: {}
+                    })
+                }
+            }
+            else {
+                return res.status(200).json({
+                    data: [],
+                    status: true,
+                    draw: 1,
+                    recordsTotal: 0,
+                    recordsFiltered: 0,
+                    input: {}
+                })
+            }
+        }
+        catch (err) {
+            next(err);
+        }
+    },
+
+    deleteBNPL: async (req, res, next) => {
+        try {
+            let id = req.params.id;
+            if (id !== null && id != '') {
+                await Bnpl_Personal.findByIdAndDelete(id)
+                    .then(() => {
+                        return res.status(201).json({
+                            message: "Delete user successfully",
+                            status: true
+                        })
+                    })
+                    .catch((err) => {
+                        return res.status(409).json({
+                            message: "Delete user failure",
+                            status: false,
+                            errorStatus: err.status || 500,
+                            errorMessage: err.message,
+                        })
+                    })
+            }
+            else {
+                return res.status(400).json({
+                    message: "Can not find id to delete user !",
+                    status: true,
+                    errorStatus: err.status || 500,
+                    errorMessage: err.message,
+                })
+            }
+        }
+        catch (err) {
+            next(err);
+        }
+    },
+
+    deleteEAP: async (req, res, next) => {
+        try {
+            let id = req.params.id;
+            if (id !== null && id != '') {
+                await EAP_Customer.findByIdAndDelete(id)
+                    .then(() => {
+                        return res.status(201).json({
+                            message: "Delete user successfully",
+                            status: true
+                        })
+                    })
+                    .catch((err) => {
+                        return res.status(409).json({
+                            message: "Delete user failure",
+                            status: false,
+                            errorStatus: err.status || 500,
+                            errorMessage: err.message,
+                        })
+                    })
+            }
+            else {
+                return res.status(400).json({
+                    message: "Can not find id to delete user !",
+                    status: true,
+                    errorStatus: err.status || 500,
+                    errorMessage: err.message,
                 })
             }
         }
