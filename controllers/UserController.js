@@ -98,6 +98,52 @@ const UserController = {
         }
     },
 
+    getUserEAP: async (req, res, next) => {
+        try {
+            const user = await EAP_Customer.findById(req.params.id);
+            if (user) {
+                const { passsword, __v, ...others } = user._doc;
+                return res.status(200).json({
+                    message: "Get information of user eap successfully",
+                    data: { ...others },
+                    status: true
+                });
+            }
+            else {
+                return res.status(404).json({
+                    message: "This account infomation is not exists !",
+                    status: false
+                });
+            }
+        }
+        catch (err) {
+            next(err);
+        }
+    },
+
+    getUserBNPL: async (req, res, next) => {
+        try {
+            const user = await Bnpl_Personal.findById(req.params.id);
+            if (user) {
+                const { providers, items, tenor, credit_limit, __v, ...others } = user._doc;
+                return res.status(200).json({
+                    message: "Get information of user bnpl successfully",
+                    data: { ...others },
+                    status: true
+                });
+            }
+            else {
+                return res.status(404).json({
+                    message: "This account infomation is not exists !",
+                    status: false
+                });
+            }
+        }
+        catch (err) {
+            next(err);
+        }
+    },
+
     register: async (req, res, next) => {
         try {
             let username = req.body.username;
@@ -301,6 +347,49 @@ const UserController = {
         }
     },
 
+    search: async (req, res, next) => {
+        try {
+            let name = req.query.name;
+            let email = req.query.email;
+            let phone = req.query.phone;
+            let nid = req.query.nid;
+
+            let user_eap_related = null;
+            let user_bnpl_related = null;
+
+            let user_eaps = await EAP_Customer.find();
+            let user_bnpls = await Bnpl_Personal.find();
+
+            let user_eap = user_eaps.filter(x => x.email === email || x.phone === phone);
+            if (user_eap.length > 0) {
+                user_eap_related = user_bnpls.filter(x => x.phone === user_eap.phone);
+            }
+
+            let user_bnpl = user_bnpls.filter(x => x.citizenId === nid || x.phone === phone && x.name.toLowerCase() === name.toLowerCase());
+            if (user_bnpl.length > 0) {
+                user_bnpl_related = user_eaps.filter(x => x.phone === user_bnpl.phone);
+            }
+
+            if (user_eap && user_bnpl) {
+                return res.status(200).json({
+                    message: "Get customer successfully",
+                    data: {
+                        EAP: user_eap || user_eap_related,
+                        BNPL: user_bnpl || user_bnpl_related
+                    },
+                    status: true,
+                    draw: 1,
+                    recordsTotal: 1,
+                    recordsFiltered: 1,
+                    input: {}
+                })
+            }
+        }
+        catch (err) {
+            next(err);
+        }
+    },
+
     deleteBNPL: async (req, res, next) => {
         try {
             let id = req.params.id;
@@ -367,7 +456,7 @@ const UserController = {
         catch (err) {
             next(err);
         }
-    }
+    },
 
 }
 
