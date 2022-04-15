@@ -140,7 +140,6 @@ const UserController = {
                 else if (search === "createdAt") {
                     result = await Bnpl_Personal.find({ createdAt: { $gte: from, $lte: (to + 'T23:59:59.999Z') } });
                 }
-
                 if (result.length > 0) {
                     return res.status(200).json({
                         message: "Get customer successfully",
@@ -156,7 +155,7 @@ const UserController = {
                     return res.status(404).json({
                         message: `This ${search} is not exists !`,
                         data: [],
-                        status: false,
+                        status: true,
                         draw: 1,
                         recordsTotal: 0,
                         recordsFiltered: 0,
@@ -167,7 +166,7 @@ const UserController = {
             else {
                 return res.status(404).json({
                     data: [],
-                    status: false,
+                    status: true,
                     draw: 1,
                     recordsTotal: 0,
                     recordsFiltered: 0,
