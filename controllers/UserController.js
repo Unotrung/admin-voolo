@@ -465,19 +465,21 @@ const UserController = {
     },
 
     deleteAccountBNPL: async (req, res, next) => {
-        try {
-            let phone = req.body.phone;
-            if (phone !== null && phone != '') {
-                await Bnpl_Personal.findOneAndDelete({ phone: phone })
+        let phone = req.body.phone;
+        if (phone !== null && phone != '') {
+            const users = await Bnpl_Personal.find();
+            const user = users.find(x => x.phone === phone);
+            if (user) {
+                await user.deleteOne()
                     .then(() => {
                         return res.status(201).json({
-                            message: "Delete user successfully",
+                            message: `Delete user with ${phone} successfully`,
                             status: true
                         })
                     })
                     .catch((err) => {
                         return res.status(409).json({
-                            message: "Delete user failure",
+                            message: `Delete user with ${phone} failure`,
                             status: false,
                             errorStatus: err.status || 500,
                             errorMessage: err.message,
@@ -485,16 +487,17 @@ const UserController = {
                     })
             }
             else {
-                return res.status(400).json({
-                    message: "Can not find phone to delete user !",
-                    status: true,
-                    errorStatus: err.status || 500,
-                    errorMessage: err.message,
+                return res.status(404).json({
+                    message: "User is not exists !",
+                    status: false,
                 })
             }
         }
-        catch (err) {
-            next(err);
+        else {
+            return res.status(400).json({
+                message: "Please enter your phone you want to delete !",
+                status: false
+            })
         }
     },
 
@@ -502,28 +505,36 @@ const UserController = {
         try {
             let phone = req.body.phone;
             if (phone !== null && phone != '') {
-                await EAP_Customer.findOneAndDelete({ phone: phone })
-                    .then(() => {
-                        return res.status(201).json({
-                            message: "Delete user successfully",
-                            status: true
+                const users = await EAP_Customer.find();
+                const user = users.find(x => x.phone === phone);
+                if (user) {
+                    await user.deleteOne()
+                        .then(() => {
+                            return res.status(201).json({
+                                message: `Delete user with ${phone} successfully`,
+                                status: true
+                            })
                         })
-                    })
-                    .catch((err) => {
-                        return res.status(409).json({
-                            message: "Delete user failure",
-                            status: false,
-                            errorStatus: err.status || 500,
-                            errorMessage: err.message,
+                        .catch((err) => {
+                            return res.status(409).json({
+                                message: `Delete user with ${phone} failure`,
+                                status: false,
+                                errorStatus: err.status || 500,
+                                errorMessage: err.message,
+                            })
                         })
+                }
+                else {
+                    return res.status(404).json({
+                        message: "User is not exists !",
+                        status: false,
                     })
+                }
             }
             else {
                 return res.status(400).json({
-                    message: "Can not find phone to delete user !",
-                    status: true,
-                    errorStatus: err.status || 500,
-                    errorMessage: err.message,
+                    message: "Please enter your phone you want to delete !",
+                    status: false
                 })
             }
         }
