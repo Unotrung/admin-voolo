@@ -355,34 +355,48 @@ const UserController = {
             let phone = req.query.phone;
             let nid = req.query.nid;
 
-            let user_eap_related = null;
-            let user_bnpl_related = null;
-
             let user_eaps = await Eap_Customer.find();
             let user_bnpls = await Bnpl_Personal.find();
+
+            let user_eap_ref = null;
+            let user_bnpl_ref = null;
 
             let user_eap = user_eaps.filter(x => x.email === email || x.phone === phone);
             console.log("User Eap: ", user_eap);
             if (user_eap.length > 0) {
                 console.log('User eap length: ', user_eap.length);
-                user_eap_related = user_bnpls.filter(x => x.phone === user_eap.phone);
-                console.log("User Eap Related: ", user_eap_related);
+                user_bnpl_ref = user_bnpls.filter(x => x.phone === user_eap[0].phone);
+                console.log("User bnpl ref: ", user_bnpl_ref);
             }
 
             let user_bnpl = user_bnpls.filter(x => x.citizenId === nid || x.phone === phone && x.name.toLowerCase() === name.toLowerCase());
             console.log("User Bnpl: ", user_bnpl);
             if (user_bnpl.length > 0) {
-                console.log('User eap length: ', user_bnpl.length);
-                user_bnpl_related = user_eaps.filter(x => x.phone === user_bnpl.phone);
-                console.log("User Bnpl Related: ", user_bnpl_related);
+                console.log('User bnpl length: ', user_bnpl.length);
+                user_eap_ref = user_eaps.filter(x => x.phone === user_bnpl[0].phone);
+                console.log("User eap ref: ", user_eap_ref);
             }
 
-            if (user_eap && user_bnpl) {
+            if (user_eap.length > 0 || user_bnpl.length > 0) {
                 return res.status(200).json({
                     message: "Get customer successfully",
                     data: {
-                        BNPL: user_bnpl || user_eap_related,
-                        EAP: user_eap || user_bnpl_related,
+                        BNPL: user_bnpl.length > 0 ? user_bnpl : user_bnpl_ref,
+                        EAP: user_eap.length > 0 ? user_eap : user_eap_ref,
+                    },
+                    status: true,
+                    draw: 1,
+                    recordsTotal: 1,
+                    recordsFiltered: 1,
+                    input: {}
+                })
+            }
+            else if (user_eap.length === 0 && user_bnpl.length === 0) {
+                return res.status(404).json({
+                    message: "Can not find any user",
+                    data: {
+                        BNPL: [],
+                        EAP: [],
                     },
                     status: true,
                     draw: 1,
