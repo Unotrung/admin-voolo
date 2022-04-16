@@ -471,9 +471,7 @@ const UserController = {
             if (phone !== null && phone != '') {
                 const users = await Bnpl_Personal.find();
                 const user = users.find(x => x.phone === phone);
-                const auths = await Bnpl_Customer.find();
-                const auth = auths.find(x => x.phone === phone);
-                if (user || auth) {
+                if (user) {
                     await user.deleteOne()
                         .then(() => {
                             return res.status(201).json({
@@ -489,6 +487,16 @@ const UserController = {
                                 errorMessage: err.message,
                             })
                         })
+                }
+                else {
+                    return res.status(404).json({
+                        message: "User is not exists !",
+                        status: false,
+                    })
+                }
+                const auths = await Bnpl_Customer.find();
+                const auth = auths.find(x => x.phone === phone);
+                if (auth) {
                     await auth.deleteOne()
                         .then(() => {
                             return res.status(201).json({
