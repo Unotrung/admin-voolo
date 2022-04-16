@@ -1,6 +1,7 @@
 const User_Provider = require('../models/User_Provider');
 const Bnpl_Personal = require('../models/Bnpl_Personals');
-const EAP_Customer = require('../models/EAP_Customer');
+const Eap_Customer = require('../models/EAP_Customer');
+const Bnpl_Customer = require('../models/Bnpl_Customer');
 const bcrypt = require('bcrypt');
 const dotenv = require('dotenv');
 
@@ -70,7 +71,7 @@ const UserController = {
 
     getAllEAP: async (req, res, next) => {
         try {
-            const users = await EAP_Customer.find();
+            const users = await Eap_Customer.find();
             let result = [];
             users.map((user, index) => {
                 let { password, __v, ...others } = user._doc;
@@ -100,7 +101,7 @@ const UserController = {
 
     getUserEAP: async (req, res, next) => {
         try {
-            const user = await EAP_Customer.findById(req.params.id);
+            const user = await Eap_Customer.findById(req.params.id);
             if (user) {
                 const { password, __v, ...others } = user._doc;
                 return res.status(200).json({
@@ -293,7 +294,7 @@ const UserController = {
             let value = req.query.value;
             let from = req.query.from;
             let to = req.query.to;
-            let customers = await EAP_Customer.find();
+            let customers = await Eap_Customer.find();
             if (customers && search !== "" && search !== null && ((value !== "" && value !== null) || (from !== "" && from !== null && to !== "" && to !== null))) {
                 let result = null;
                 if (search === "name") {
@@ -306,7 +307,7 @@ const UserController = {
                     result = customers.filter(x => x.email.toLowerCase() === value.toLowerCase());
                 }
                 else if (search === "createdAt") {
-                    result = await EAP_Customer.find({ createdAt: { $gte: from, $lte: (to + 'T23:59:59.999Z') } });
+                    result = await Eap_Customer.find({ createdAt: { $gte: from, $lte: (to + 'T23:59:59.999Z') } });
                 }
                 if (result.length > 0) {
                     return res.status(200).json({
@@ -357,7 +358,7 @@ const UserController = {
             let user_eap_related = null;
             let user_bnpl_related = null;
 
-            let user_eaps = await EAP_Customer.find();
+            let user_eaps = await Eap_Customer.find();
             let user_bnpls = await Bnpl_Personal.find();
 
             let user_eap = user_eaps.filter(x => x.email === email || x.phone === phone);
@@ -434,7 +435,7 @@ const UserController = {
         try {
             let id = req.params.id;
             if (id !== null && id != '') {
-                await EAP_Customer.findByIdAndDelete(id)
+                await Eap_Customer.findByIdAndDelete(id)
                     .then(() => {
                         return res.status(201).json({
                             message: "Delete user successfully",
@@ -465,39 +466,61 @@ const UserController = {
     },
 
     deleteAccountBNPL: async (req, res, next) => {
-        let phone = req.body.phone;
-        if (phone !== null && phone != '') {
-            const users = await Bnpl_Personal.find();
-            const user = users.find(x => x.phone === phone);
-            if (user) {
-                await user.deleteOne()
-                    .then(() => {
-                        return res.status(201).json({
-                            message: `Delete user with ${phone} successfully`,
-                            status: true
+        try {
+            let phone = req.body.phone;
+            if (phone !== null && phone != '') {
+                const users = await Bnpl_Personal.find();
+                const user = users.find(x => x.phone === phone);
+                const auths = await Bnpl_Customer.find();
+                const auth = auths.find(x => x.phone === phone);
+                if (user || auth) {
+                    await user.deleteOne()
+                        .then(() => {
+                            return res.status(201).json({
+                                message: `Delete user with ${phone} successfully`,
+                                status: true
+                            })
                         })
-                    })
-                    .catch((err) => {
-                        return res.status(409).json({
-                            message: `Delete user with ${phone} failure`,
-                            status: false,
-                            errorStatus: err.status || 500,
-                            errorMessage: err.message,
+                        .catch((err) => {
+                            return res.status(409).json({
+                                message: `Delete user with ${phone} failure`,
+                                status: false,
+                                errorStatus: err.status || 500,
+                                errorMessage: err.message,
+                            })
                         })
+                    await auth.deleteOne()
+                        .then(() => {
+                            return res.status(201).json({
+                                message: `Delete user with ${phone} successfully`,
+                                status: true
+                            })
+                        })
+                        .catch((err) => {
+                            return res.status(409).json({
+                                message: `Delete user with ${phone} failure`,
+                                status: false,
+                                errorStatus: err.status || 500,
+                                errorMessage: err.message,
+                            })
+                        })
+                }
+                else {
+                    return res.status(404).json({
+                        message: "User is not exists !",
+                        status: false,
                     })
+                }
             }
             else {
-                return res.status(404).json({
-                    message: "User is not exists !",
-                    status: false,
+                return res.status(400).json({
+                    message: "Please enter your phone you want to delete !",
+                    status: false
                 })
             }
         }
-        else {
-            return res.status(400).json({
-                message: "Please enter your phone you want to delete !",
-                status: false
-            })
+        catch (err) {
+            next(err);
         }
     },
 
@@ -505,7 +528,7 @@ const UserController = {
         try {
             let phone = req.body.phone;
             if (phone !== null && phone != '') {
-                const users = await EAP_Customer.find();
+                const users = await Eap_Customer.find();
                 const user = users.find(x => x.phone === phone);
                 if (user) {
                     await user.deleteOne()
