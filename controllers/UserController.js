@@ -386,8 +386,8 @@ const UserController = {
                     return res.status(200).json({
                         message: "Get customer successfully",
                         data: {
-                            BNPL: user_bnpl.length > 0 ? user_bnpl : user_bnpl_ref,
-                            EAP: user_eap.length > 0 ? user_eap : user_eap_ref,
+                            BNPL: user_bnpl.length > 0 ? user_bnpl_arr : user_bnpl_ref,
+                            EAP: user_eap.length > 0 ? user_eap_arr : user_eap_ref,
                         },
                         status: true,
                         draw: 1,
