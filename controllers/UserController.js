@@ -374,7 +374,7 @@ const UserController = {
 
                 let user_bnpl = user_bnpls.filter(x => x.citizenId === nid || x.phone === phone && x.name.toLowerCase() === name.toLowerCase());
                 let user_bnpl_arr = [];
-                users.map((user, index) => {
+                user_bnpl.map((user, index) => {
                     let { providers, items, tenor, credit_limit, __v, ...others } = user._doc;
                     user_bnpl_arr.push({ ...others });
                 })
