@@ -354,6 +354,10 @@ const UserController = {
             let email = req.query.email;
             let phone = req.query.phone;
             let nid = req.query.nid;
+            console.log("Name: ", req.query.name);
+            console.log("Email: ", req.query.email);
+            console.log("Phone: ", req.query.phone);
+            console.log("Nid: ", req.query.nid);
 
             let user_eaps = await Eap_Customer.find();
             let user_bnpls = await Bnpl_Personal.find();
@@ -370,6 +374,8 @@ const UserController = {
                 })
                 if (user_eap_arr.length > 0) {
                     user_bnpl_ref = user_bnpls.filter(x => x.phone === user_eap_arr[0].phone);
+                    let { providers, items, tenor, credit_limit, __v, ...others } = user_bnpl_ref[0]._doc;
+                    user_bnpl_ref = { ...others };
                 }
 
                 let user_bnpl = user_bnpls.filter(x => x.citizenId === nid || x.phone === phone && x.name.toLowerCase() === name.toLowerCase());
@@ -380,6 +386,8 @@ const UserController = {
                 })
                 if (user_bnpl_arr.length > 0) {
                     user_eap_ref = user_eaps.filter(x => x.phone === user_bnpl_arr[0].phone);
+                    let { __v, password, ...others } = user_eap_ref[0]._doc;
+                    user_eap_ref = { ...others };
                 }
 
                 if (user_eap.length > 0 || user_bnpl.length > 0) {
