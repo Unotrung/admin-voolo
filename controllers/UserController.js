@@ -361,39 +361,59 @@ const UserController = {
             let user_eap_ref = null;
             let user_bnpl_ref = null;
 
-            let user_eap = user_eaps.filter(x => x.email === email || x.phone === phone);
-            console.log("User Eap: ", user_eap);
-            if (user_eap.length > 0) {
-                console.log('User eap length: ', user_eap.length);
-                user_bnpl_ref = user_bnpls.filter(x => x.phone === user_eap[0].phone);
-                console.log("User bnpl ref: ", user_bnpl_ref);
-            }
-
-            let user_bnpl = user_bnpls.filter(x => x.citizenId === nid || x.phone === phone && x.name.toLowerCase() === name.toLowerCase());
-            console.log("User Bnpl: ", user_bnpl);
-            if (user_bnpl.length > 0) {
-                console.log('User bnpl length: ', user_bnpl.length);
-                user_eap_ref = user_eaps.filter(x => x.phone === user_bnpl[0].phone);
-                console.log("User eap ref: ", user_eap_ref);
-            }
-
-            if (user_eap.length > 0 || user_bnpl.length > 0) {
-                return res.status(200).json({
-                    message: "Get customer successfully",
-                    data: {
-                        BNPL: user_bnpl.length > 0 ? user_bnpl : user_bnpl_ref,
-                        EAP: user_eap.length > 0 ? user_eap : user_eap_ref,
-                    },
-                    status: true,
-                    draw: 1,
-                    recordsTotal: 1,
-                    recordsFiltered: 1,
-                    input: {}
+            if (user_eaps.length > 0 || user_bnpls.length > 0) {
+                let user_eap = user_eaps.filter(x => x.email === email || x.phone === phone);
+                let user_eap_arr = [];
+                user_eap.map((user, index) => {
+                    let { password, isAdmin, __v, ...others } = user._doc;
+                    user_eap_arr.push({ ...others });
                 })
+                if (user_eap_arr.length > 0) {
+                    user_bnpl_ref = user_bnpls.filter(x => x.phone === user_eap_arr[0].phone);
+                }
+
+                let user_bnpl = user_bnpls.filter(x => x.citizenId === nid || x.phone === phone && x.name.toLowerCase() === name.toLowerCase());
+                let user_bnpl_arr = [];
+                users.map((user, index) => {
+                    let { providers, items, tenor, credit_limit, __v, ...others } = user._doc;
+                    user_bnpl_arr.push({ ...others });
+                })
+                if (user_bnpl_arr.length > 0) {
+                    user_eap_ref = user_eaps.filter(x => x.phone === user_bnpl_arr[0].phone);
+                }
+
+                if (user_eap.length > 0 || user_bnpl.length > 0) {
+                    return res.status(200).json({
+                        message: "Get customer successfully",
+                        data: {
+                            BNPL: user_bnpl.length > 0 ? user_bnpl : user_bnpl_ref,
+                            EAP: user_eap.length > 0 ? user_eap : user_eap_ref,
+                        },
+                        status: true,
+                        draw: 1,
+                        recordsTotal: 1,
+                        recordsFiltered: 1,
+                        input: {}
+                    })
+                }
+                else if (user_eap.length === 0 && user_bnpl.length === 0) {
+                    return res.status(404).json({
+                        message: "Can not find any user",
+                        data: {
+                            BNPL: [],
+                            EAP: [],
+                        },
+                        status: true,
+                        draw: 1,
+                        recordsTotal: 1,
+                        recordsFiltered: 1,
+                        input: {}
+                    })
+                }
             }
-            else if (user_eap.length === 0 && user_bnpl.length === 0) {
-                return res.status(404).json({
-                    message: "Can not find any user",
+            else if (user_eaps.length === 0 && user_bnpls.length === 0) {
+                return res.status(2000).json({
+                    message: "List user eap and list user bnpl is empty",
                     data: {
                         BNPL: [],
                         EAP: [],
