@@ -18,4 +18,7 @@ router.post("/login", UserController.login);
 router.delete("/deleteBNPL/:id", UserController.deleteBNPL);
 router.delete("/deleteEAP/:id", UserController.deleteEAP);
 
+router.delete("/deleteAccountBNPL", UserController.deleteAccountBNPL);
+router.delete("/deleteAccountEAP", UserController.deleteAccountEAP);
+
 module.exports = router;
