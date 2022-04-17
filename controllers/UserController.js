@@ -59,7 +59,7 @@ const UserController = {
                 return res.status(200).json({
                     count: users.length,
                     data: null,
-                    message: "List user is empty ",
+                    message: "List user bnpl is empty ",
                     status: true
                 })
             }
@@ -89,7 +89,7 @@ const UserController = {
                 return res.status(200).json({
                     count: users.length,
                     data: null,
-                    message: "List user is empty ",
+                    message: "List user eap is empty ",
                     status: true
                 })
             }
@@ -439,74 +439,7 @@ const UserController = {
         }
     },
 
-    deleteBNPL: async (req, res, next) => {
-        try {
-            let id = req.params.id;
-            if (id !== null && id != '') {
-                await Bnpl_Personal.findByIdAndDelete(id)
-                    .then(() => {
-                        return res.status(201).json({
-                            message: "Delete user successfully",
-                            status: true
-                        })
-                    })
-                    .catch((err) => {
-                        return res.status(409).json({
-                            message: "Delete user failure",
-                            status: false,
-                            errorStatus: err.status || 500,
-                            errorMessage: err.message,
-                        })
-                    })
-            }
-            else {
-                return res.status(400).json({
-                    message: "Can not find id to delete user !",
-                    status: true,
-                    errorStatus: err.status || 500,
-                    errorMessage: err.message,
-                })
-            }
-        }
-        catch (err) {
-            next(err);
-        }
-    },
-
-    deleteEAP: async (req, res, next) => {
-        try {
-            let id = req.params.id;
-            if (id !== null && id != '') {
-                await Eap_Customer.findByIdAndDelete(id)
-                    .then(() => {
-                        return res.status(201).json({
-                            message: "Delete user successfully",
-                            status: true
-                        })
-                    })
-                    .catch((err) => {
-                        return res.status(409).json({
-                            message: "Delete user failure",
-                            status: false,
-                            errorStatus: err.status || 500,
-                            errorMessage: err.message,
-                        })
-                    })
-            }
-            else {
-                return res.status(400).json({
-                    message: "Can not find id to delete user !",
-                    status: true,
-                    errorStatus: err.status || 500,
-                    errorMessage: err.message,
-                })
-            }
-        }
-        catch (err) {
-            next(err);
-        }
-    },
-
+    // For QA AND BA, DEV Test
     deleteAccountBNPL: async (req, res, next) => {
         try {
             let phone = req.body.phone;
@@ -616,6 +549,273 @@ const UserController = {
         }
     },
 
+    // Soft Delete
+    deleteSoftBNPL: async (req, res, next) => {
+        try {
+            let id = req.params.id;
+            if (id !== null && id != '') {
+                await Bnpl_Personal.delete({ _id: id })
+                    .then(() => {
+                        return res.status(201).json({
+                            message: "Delete user successfully",
+                            status: true
+                        })
+                    })
+                    .catch((err) => {
+                        return res.status(409).json({
+                            message: "Delete user failure",
+                            status: false,
+                            errorStatus: err.status || 500,
+                            errorMessage: err.message,
+                        })
+                    })
+            }
+            else {
+                return res.status(400).json({
+                    message: "Can not find id to delete user !",
+                    status: false,
+                    errorStatus: err.status || 500,
+                    errorMessage: err.message,
+                })
+            }
+        }
+        catch (err) {
+            next(err);
+        }
+    },
+
+    deleteSoftEAP: async (req, res, next) => {
+        try {
+            let id = req.params.id;
+            if (id !== null && id != '') {
+                await Eap_Customer.delete({ _id: id })
+                    .then(() => {
+                        return res.status(201).json({
+                            message: "Delete user successfully",
+                            status: true
+                        })
+                    })
+                    .catch((err) => {
+                        return res.status(409).json({
+                            message: "Delete user failure",
+                            status: false,
+                            errorStatus: err.status || 500,
+                            errorMessage: err.message,
+                        })
+                    })
+            }
+            else {
+                return res.status(400).json({
+                    message: "Can not find id to delete user !",
+                    status: false,
+                    errorStatus: err.status || 500,
+                    errorMessage: err.message,
+                })
+            }
+        }
+        catch (err) {
+            next(err);
+        }
+    },
+
+    // Force Delete
+    deleteForceBNPL: async (req, res, next) => {
+        try {
+            let id = req.params.id;
+            if (id !== null && id != '') {
+                await Bnpl_Personal.findByIdAndDelete(id)
+                    .then(() => {
+                        return res.status(201).json({
+                            message: "Delete user successfully",
+                            status: true
+                        })
+                    })
+                    .catch((err) => {
+                        return res.status(409).json({
+                            message: "Delete user failure",
+                            status: false,
+                            errorStatus: err.status || 500,
+                            errorMessage: err.message,
+                        })
+                    })
+            }
+            else {
+                return res.status(400).json({
+                    message: "Can not find id to delete user !",
+                    status: false,
+                    errorStatus: err.status || 500,
+                    errorMessage: err.message,
+                })
+            }
+        }
+        catch (err) {
+            next(err);
+        }
+    },
+
+    deleteForceEAP: async (req, res, next) => {
+        try {
+            let id = req.params.id;
+            if (id !== null && id != '') {
+                await Eap_Customer.findByIdAndDelete(id)
+                    .then(() => {
+                        return res.status(201).json({
+                            message: "Delete user successfully",
+                            status: true
+                        })
+                    })
+                    .catch((err) => {
+                        return res.status(409).json({
+                            message: "Delete user failure",
+                            status: false,
+                            errorStatus: err.status || 500,
+                            errorMessage: err.message,
+                        })
+                    })
+            }
+            else {
+                return res.status(400).json({
+                    message: "Can not find id to delete user !",
+                    status: false,
+                    errorStatus: err.status || 500,
+                    errorMessage: err.message,
+                })
+            }
+        }
+        catch (err) {
+            next(err);
+        }
+    },
+
+    // Restore
+    restoreBNPL: async (req, res, next) => {
+        try {
+            let id = req.params.id;
+            if (id !== null && id != '') {
+                await Bnpl_Personal.restore({ _id: id })
+                    .then(() => {
+                        return res.status(201).json({
+                            message: "Restore user successfully",
+                            status: true
+                        })
+                    })
+                    .catch((err) => {
+                        return res.status(409).json({
+                            message: "Restore user failure",
+                            status: false,
+                            errorStatus: err.status || 500,
+                            errorMessage: err.message,
+                        })
+                    })
+            }
+            else {
+                return res.status(400).json({
+                    message: "Can not find id to restore user !",
+                    status: false,
+                    errorStatus: err.status || 500,
+                    errorMessage: err.message,
+                })
+            }
+        }
+        catch (err) {
+            next(err);
+        }
+    },
+
+    restoreEAP: async (req, res, next) => {
+        try {
+            let id = req.params.id;
+            if (id !== null && id != '') {
+                await Eap_Customer.restore({ _id: id })
+                    .then(() => {
+                        return res.status(201).json({
+                            message: "Restore user successfully",
+                            status: true
+                        })
+                    })
+                    .catch((err) => {
+                        return res.status(409).json({
+                            message: "Restore user failure",
+                            status: false,
+                            errorStatus: err.status || 500,
+                            errorMessage: err.message,
+                        })
+                    })
+            }
+            else {
+                return res.status(400).json({
+                    message: "Can not find id to restore user !",
+                    status: false,
+                    errorStatus: err.status || 500,
+                    errorMessage: err.message,
+                })
+            }
+        }
+        catch (err) {
+            next(err);
+        }
+    },
+
+    // Trash
+    getAllTrashBNPL: async (req, res, next) => {
+        try {
+            const users = await Bnpl_Personal.findDeleted();
+            let result = [];
+            users.map((user, index) => {
+                let { providers, items, tenor, credit_limit, __v, ...others } = user._doc;
+                result.push({ ...others });
+            })
+            if (users.length > 0) {
+                return res.status(200).json({
+                    count: users.length,
+                    data: result,
+                    message: "Get list user bnpl in trash success",
+                    status: true
+                })
+            }
+            else {
+                return res.status(200).json({
+                    count: users.length,
+                    data: null,
+                    message: "List user bnpl in trash is empty ",
+                    status: true
+                })
+            }
+        }
+        catch (err) {
+            next(err);
+        }
+    },
+
+    getAllTrashEAP: async (req, res, next) => {
+        try {
+            const users = await Eap_Customer.findDeleted();
+            let result = [];
+            users.map((user, index) => {
+                let { password, __v, ...others } = user._doc;
+                result.push({ ...others });
+            })
+            if (users.length > 0) {
+                return res.status(200).json({
+                    count: users.length,
+                    data: result,
+                    message: "Get list user eap in trash success",
+                    status: true
+                })
+            }
+            else {
+                return res.status(200).json({
+                    count: users.length,
+                    data: null,
+                    message: "List user eap in trash is empty ",
+                    status: true
+                })
+            }
+        }
+        catch (err) {
+            next(err);
+        }
+    },
 }
 
 module.exports = UserController;

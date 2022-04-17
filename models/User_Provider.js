@@ -1,10 +1,11 @@
 const mongoose = require('mongoose');
 const encrypt = require('mongoose-encryption');
 const dotenv = require('dotenv');
+const mongooseDelete = require('mongoose-delete');
 
 dotenv.config();
 
-const User_ProviderSchema = new mongoose.Schema({
+const user_providerSchema = new mongoose.Schema({
 
     username: {
         type: String,
@@ -20,6 +21,9 @@ const User_ProviderSchema = new mongoose.Schema({
 mongoose.SchemaTypes.String.set('trim', true);
 
 const secret = process.env.SECRET_MONGOOSE;
-User_ProviderSchema.plugin(encrypt, { secret: secret, encryptedFields: ['username', 'password'] });
+user_providerSchema.plugin(encrypt, { secret: secret, encryptedFields: ['username', 'password'] });
 
-module.exports = mongoose.model('User_Provider', User_ProviderSchema);
+// Add plugin
+user_providerSchema.plugin(mongooseDelete); // Soft Delete
+
+module.exports = mongoose.model('user_provider', user_providerSchema);

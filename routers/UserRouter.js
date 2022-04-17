@@ -15,8 +15,20 @@ router.get("/search", UserController.search);
 router.post("/register", UserController.register);
 router.post("/login", UserController.login);
 
-router.delete("/deleteBNPL/:id", UserController.deleteBNPL);
-router.delete("/deleteEAP/:id", UserController.deleteEAP);
+// Soft Delete
+router.delete("/deleteSoftBNPL/:id", UserController.deleteSoftBNPL);
+router.delete("/deleteSoftEAP/:id", UserController.deleteSoftEAP);
+
+// Force Delete
+router.delete("/deleteForceBNPL/:id", UserController.deleteForceBNPL);
+router.delete("/deleteForceEAP/:id", UserController.deleteForceEAP);
+
+// Restore 
+router.put("/restoreBNPL/:id", UserController.restoreBNPL);
+router.put("/restoreEAP/:id", UserController.restoreEAP);
+
+router.get("/getAllTrashBNPL", UserController.getAllTrashBNPL);
+router.get("/getAllTrashEAP", UserController.getAllTrashEAP);
 
 router.delete("/deleteAccountBNPL", UserController.deleteAccountBNPL);
 router.delete("/deleteAccountEAP", UserController.deleteAccountEAP);
