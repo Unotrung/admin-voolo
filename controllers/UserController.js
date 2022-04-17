@@ -554,7 +554,7 @@ const UserController = {
         try {
             let id = req.params.id;
             if (id !== null && id != '') {
-                await Bnpl_Personal.delete({ _id: id })
+                await Bnpl_Customer.delete({ _id: id })
                     .then(() => {
                         return res.status(201).json({
                             message: "Delete user successfully",
@@ -623,7 +623,7 @@ const UserController = {
         try {
             let id = req.params.id;
             if (id !== null && id != '') {
-                await Bnpl_Personal.findByIdAndDelete(id)
+                await Bnpl_Customer.findByIdAndDelete(id)
                     .then(() => {
                         return res.status(201).json({
                             message: "Delete user successfully",
@@ -692,7 +692,7 @@ const UserController = {
         try {
             let id = req.params.id;
             if (id !== null && id != '') {
-                await Bnpl_Personal.restore({ _id: id })
+                await Bnpl_Customer.restore({ _id: id })
                     .then(() => {
                         return res.status(201).json({
                             message: "Restore user successfully",
@@ -759,7 +759,7 @@ const UserController = {
     // Trash
     getAllTrashBNPL: async (req, res, next) => {
         try {
-            const users = await Bnpl_Personal.findDeleted();
+            const users = await Bnpl_Customer.findDeleted();
             let result = [];
             users.map((user, index) => {
                 let { providers, items, tenor, credit_limit, __v, ...others } = user._doc;
