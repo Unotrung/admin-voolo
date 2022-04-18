@@ -39,12 +39,42 @@ const UserController = {
         }
     },
 
-    getAllBNPL: async (req, res, next) => {
+    getAllEAP: async (req, res, next) => {
         try {
-            const users = await Bnpl_Personal.find();
+            const users = await Eap_Customer.find();
             let result = [];
             users.map((user, index) => {
-                let { providers, items, tenor, credit_limit, __v, ...others } = user._doc;
+                let { password, __v, ...others } = user._doc;
+                result.push({ ...others });
+            })
+            if (users.length > 0) {
+                return res.status(200).json({
+                    count: users.length,
+                    data: result,
+                    message: "Get list user eap success",
+                    status: true
+                })
+            }
+            else {
+                return res.status(200).json({
+                    count: users.length,
+                    data: null,
+                    message: "List user eap is empty ",
+                    status: true
+                })
+            }
+        }
+        catch (err) {
+            next(err);
+        }
+    },
+
+    getAllBNPLCustomer: async (req, res, next) => {
+        try {
+            const users = await Bnpl_Customer.find();
+            let result = [];
+            users.map((user, index) => {
+                let { pin, __v, ...others } = user._doc;
                 result.push({ ...others });
             })
             if (users.length > 0) {
@@ -69,19 +99,19 @@ const UserController = {
         }
     },
 
-    getAllEAP: async (req, res, next) => {
+    getAllBNPLPersonal: async (req, res, next) => {
         try {
-            const users = await Eap_Customer.find();
+            const users = await Bnpl_Personal.find();
             let result = [];
             users.map((user, index) => {
-                let { password, __v, ...others } = user._doc;
+                let { providers, items, tenor, credit_limit, __v, ...others } = user._doc;
                 result.push({ ...others });
             })
             if (users.length > 0) {
                 return res.status(200).json({
                     count: users.length,
                     data: result,
-                    message: "Get list user eap success",
+                    message: "Get list user bnpl success",
                     status: true
                 })
             }
@@ -89,7 +119,7 @@ const UserController = {
                 return res.status(200).json({
                     count: users.length,
                     data: null,
-                    message: "List user eap is empty ",
+                    message: "List user bnpl is empty ",
                     status: true
                 })
             }

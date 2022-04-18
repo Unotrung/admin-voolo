@@ -3,7 +3,8 @@ const UserController = require('../controllers/UserController');
 const router = require("express").Router();
 
 router.get("/getAllUserProvider", UserController.getAllUserProvider);
-router.get("/getAllBNPL", UserController.getAllBNPL);
+router.get("/getAllBNPLPersonal", UserController.getAllBNPLPersonal);
+router.get("/getAllBNPLCustomer", UserController.getAllBNPLCustomer);
 router.get("/getAllEAP", UserController.getAllEAP);
 router.get("/getUserBNPL/:id", UserController.getUserBNPL);
 router.get("/getUserEAP/:id", UserController.getUserEAP);
