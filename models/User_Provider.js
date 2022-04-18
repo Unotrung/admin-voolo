@@ -24,6 +24,6 @@ const secret = process.env.SECRET_MONGOOSE;
 user_providerSchema.plugin(encrypt, { secret: secret, encryptedFields: ['username', 'password'] });
 
 // Add plugin
-user_providerSchema.plugin(mongooseDelete); // Soft Delete
+user_providerSchema.plugin(mongooseDelete, { deletedAt: true, overrideMethods: 'all' }); // Soft Delete
 
 module.exports = mongoose.model('user_provider', user_providerSchema);

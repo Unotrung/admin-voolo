@@ -32,6 +32,6 @@ const secret = process.env.SECRET_MONGOOSE;
 eap_customerSchema.plugin(encrypt, { secret: secret, encryptedFields: ['username', 'email', 'phone', 'password'] });
 
 // Add plugin
-eap_customerSchema.plugin(mongooseDelete); // Soft Delete
+eap_customerSchema.plugin(mongooseDelete, { deletedAt: true, overrideMethods: 'all' }); // Soft Delete
 
 module.exports = mongoose.model('eap_customer', eap_customerSchema);
