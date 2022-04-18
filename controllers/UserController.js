@@ -42,6 +42,7 @@ const UserController = {
     getAllEAP: async (req, res, next) => {
         try {
             const users = await Eap_Customer.find();
+            console.log("Users: ", users);
             let result = [];
             users.map((user, index) => {
                 let { password, __v, ...others } = user._doc;
@@ -72,6 +73,7 @@ const UserController = {
     getAllBNPLCustomer: async (req, res, next) => {
         try {
             const users = await Bnpl_Customer.find();
+            console.log("Users: ", users);
             let result = [];
             users.map((user, index) => {
                 let { pin, __v, ...others } = user._doc;
@@ -584,21 +586,30 @@ const UserController = {
         try {
             let id = req.params.id;
             if (id !== null && id != '') {
-                await Bnpl_Customer.delete({ _id: id })
-                    .then(() => {
-                        return res.status(201).json({
-                            message: "Delete user successfully",
-                            status: true
+                const user = await Bnpl_Customer.findById(id);
+                if (user !== null) {
+                    await Bnpl_Customer.delete({ _id: id })
+                        .then(() => {
+                            return res.status(201).json({
+                                message: "Delete user successfully",
+                                status: true
+                            })
                         })
-                    })
-                    .catch((err) => {
-                        return res.status(409).json({
-                            message: "Delete user failure",
-                            status: false,
-                            errorStatus: err.status || 500,
-                            errorMessage: err.message,
+                        .catch((err) => {
+                            return res.status(409).json({
+                                message: "Delete user failure",
+                                status: false,
+                                errorStatus: err.status || 500,
+                                errorMessage: err.message,
+                            })
                         })
+                }
+                else {
+                    return res.status(400).json({
+                        message: "Can not find user to delete !",
+                        status: false,
                     })
+                }
             }
             else {
                 return res.status(400).json({
@@ -618,21 +629,30 @@ const UserController = {
         try {
             let id = req.params.id;
             if (id !== null && id != '') {
-                await Eap_Customer.delete({ _id: id })
-                    .then(() => {
-                        return res.status(201).json({
-                            message: "Delete user successfully",
-                            status: true
+                const user = await Eap_Customer.findById(id);
+                if (user !== null) {
+                    await Eap_Customer.delete({ _id: id })
+                        .then(() => {
+                            return res.status(201).json({
+                                message: "Delete user successfully",
+                                status: true
+                            })
                         })
-                    })
-                    .catch((err) => {
-                        return res.status(409).json({
-                            message: "Delete user failure",
-                            status: false,
-                            errorStatus: err.status || 500,
-                            errorMessage: err.message,
+                        .catch((err) => {
+                            return res.status(409).json({
+                                message: "Delete user failure",
+                                status: false,
+                                errorStatus: err.status || 500,
+                                errorMessage: err.message,
+                            })
                         })
+                }
+                else {
+                    return res.status(400).json({
+                        message: "Can not find user to delete !",
+                        status: false,
                     })
+                }
             }
             else {
                 return res.status(400).json({
@@ -790,14 +810,15 @@ const UserController = {
     getAllTrashBNPL: async (req, res, next) => {
         try {
             const users = await Bnpl_Customer.findDeleted();
+            const trashUsers = users.filter(x => x.deleted === Boolean(true));
             let result = [];
-            users.map((user, index) => {
-                let { providers, items, tenor, credit_limit, __v, ...others } = user._doc;
+            trashUsers.map((user, index) => {
+                let { pin, __v, ...others } = user._doc;
                 result.push({ ...others });
             })
-            if (users.length > 0) {
+            if (trashUsers.length > 0) {
                 return res.status(200).json({
-                    count: users.length,
+                    count: trashUsers.length,
                     data: result,
                     message: "Get list user bnpl in trash success",
                     status: true
@@ -805,7 +826,7 @@ const UserController = {
             }
             else {
                 return res.status(200).json({
-                    count: users.length,
+                    count: trashUsers.length,
                     data: null,
                     message: "List user bnpl in trash is empty ",
                     status: true
@@ -820,14 +841,15 @@ const UserController = {
     getAllTrashEAP: async (req, res, next) => {
         try {
             const users = await Eap_Customer.findDeleted();
+            const trashUsers = users.filter(x => x.deleted === Boolean(true));
             let result = [];
-            users.map((user, index) => {
+            trashUsers.map((user, index) => {
                 let { password, __v, ...others } = user._doc;
                 result.push({ ...others });
             })
-            if (users.length > 0) {
+            if (trashUsers.length > 0) {
                 return res.status(200).json({
-                    count: users.length,
+                    count: trashUsers.length,
                     data: result,
                     message: "Get list user eap in trash success",
                     status: true
@@ -835,7 +857,7 @@ const UserController = {
             }
             else {
                 return res.status(200).json({
-                    count: users.length,
+                    count: trashUsers.length,
                     data: null,
                     message: "List user eap in trash is empty ",
                     status: true
