@@ -476,10 +476,10 @@ const UserController = {
         try {
             let phone = req.body.phone;
             if (phone !== null && phone != '') {
-                const users = await Bnpl_Personal.find();
-                const user = users.find(x => x.phone === phone);
-                if (user) {
-                    await user.deleteOne()
+                const auths = await Bnpl_Customer.find();
+                const auth = auths.find(x => x.phone === phone);
+                if (auth) {
+                    await auth.deleteOne()
                         .then(() => {
                             return res.status(201).json({
                                 message: `Delete user with ${phone} successfully`,
@@ -501,10 +501,10 @@ const UserController = {
                         status: false,
                     })
                 }
-                const auths = await Bnpl_Customer.find();
-                const auth = auths.find(x => x.phone === phone);
-                if (auth) {
-                    await auth.deleteOne()
+                const users = await Bnpl_Personal.find();
+                const user = users.find(x => x.phone === phone);
+                if (user) {
+                    await user.deleteOne()
                         .then(() => {
                             return res.status(201).json({
                                 message: `Delete user with ${phone} successfully`,
