@@ -383,15 +383,14 @@ const UserController = {
         try {
             let filters = req.query;
             console.log("Filters: ", filters);
+            if ((filters.username !== null && filters.username !== undefined) || (filters.email !== null && filters.email !== undefined) || (filters.phone !== null && filters.phone !== undefined) || (filters.name !== null && filters.name !== undefined) || (filters.citizenId !== null && filters.citizenId !== undefined)) {
+                let user_eaps = await Eap_Customer.find();
+                let user_bnpls = await Bnpl_Personal.find();
 
-            let user_eaps = await Eap_Customer.find();
-            let user_bnpls = await Bnpl_Personal.find();
+                let user_eap_ref = null;
+                let user_bnpl_ref = null;
 
-            let user_eap_ref = null;
-            let user_bnpl_ref = null;
-
-            if (user_eaps.length > 0 || user_bnpls.length > 0) {
-                if ((filters.username !== null && filters.username !== undefined) || (filters.email !== null && filters.email !== undefined) || (filters.phone !== null && filters.phone !== undefined) || (filters.name !== null && filters.name !== undefined) || (filters.citizenId !== null && filters.citizenId !== undefined)) {
+                if (user_eaps.length > 0 || user_bnpls.length > 0) {
                     let user_eap = user_eaps;
                     user_eap = (filters.username !== null && filters.username !== undefined) ? user_eap.filter(obj => obj.username === filters.username) : user_eap;
                     console.log("USER_EAP username: ", user_eap);
@@ -441,25 +440,39 @@ const UserController = {
                             }
                         }
                     }
-                }
 
-                if (user_eap.length > 0 || user_bnpl.length > 0) {
-                    return res.status(200).json({
-                        message: "Get customer successfully",
-                        data: {
-                            BNPL: user_bnpl.length > 0 ? user_bnpl_arr : user_bnpl_ref,
-                            EAP: user_eap.length > 0 ? user_eap_arr : user_eap_ref,
-                        },
-                        status: true,
-                        draw: 1,
-                        recordsTotal: 1,
-                        recordsFiltered: 1,
-                        input: {}
-                    })
+                    if (user_eap.length > 0 || user_bnpl.length > 0) {
+                        return res.status(200).json({
+                            message: "Get customer successfully",
+                            data: {
+                                BNPL: user_bnpl.length > 0 ? user_bnpl_arr : user_bnpl_ref,
+                                EAP: user_eap.length > 0 ? user_eap_arr : user_eap_ref,
+                            },
+                            status: true,
+                            draw: 1,
+                            recordsTotal: 1,
+                            recordsFiltered: 1,
+                            input: {}
+                        })
+                    }
+                    else if (user_eap.length === 0 && user_bnpl.length === 0) {
+                        return res.status(404).json({
+                            message: "Can not find any user",
+                            data: {
+                                BNPL: [],
+                                EAP: [],
+                            },
+                            status: true,
+                            draw: 1,
+                            recordsTotal: 1,
+                            recordsFiltered: 1,
+                            input: {}
+                        })
+                    }
                 }
-                else if (user_eap.length === 0 && user_bnpl.length === 0) {
-                    return res.status(404).json({
-                        message: "Can not find any user",
+                else if (user_eaps.length === 0 && user_bnpls.length === 0) {
+                    return res.status(200).json({
+                        message: "List user eap and list user bnpl is empty",
                         data: {
                             BNPL: [],
                             EAP: [],
@@ -472,8 +485,8 @@ const UserController = {
                     })
                 }
             }
-            else if (user_eaps.length === 0 && user_bnpls.length === 0) {
-                return res.status(2000).json({
+            else {
+                return res.status(200).json({
                     message: "List user eap and list user bnpl is empty",
                     data: {
                         BNPL: [],
