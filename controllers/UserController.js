@@ -397,7 +397,7 @@ const UserController = {
                 if (user_eaps.length > 0 || user_bnpls.length > 0) {
                     if ((filters.username !== null && filters.username !== undefined) || (filters.email !== null && filters.email !== undefined) || (filters.phone !== null && filters.phone !== undefined)) {
                         user_eap = user_eaps;
-                        user_eap = (filters.username !== null && filters.username !== undefined) ? user_eap.filter(obj => obj.username === filters.username) : user_eap;
+                        user_eap = (filters.username !== null && filters.username !== undefined) ? user_eap.filter(obj => obj.username.toLowerCase().trim() === filters.username.toLowerCase().trim()) : user_eap;
                         user_eap = (filters.email !== null && filters.email !== undefined) ? user_eap.filter(obj => obj.email === filters.email) : user_eap;
                         user_eap = (filters.phone !== null && filters.phone !== undefined) ? user_eap.filter(obj => obj.phone === filters.phone) : user_eap;
                         if (user_eap.length > 0) {
@@ -420,7 +420,7 @@ const UserController = {
 
                     if ((filters.name !== null && filters.name !== undefined) || (filters.phone !== null && filters.phone !== undefined) || (filters.citizenId !== null && filters.citizenId !== undefined)) {
                         user_bnpl = user_bnpls;
-                        user_bnpl = (filters.name !== null && filters.name !== undefined) ? user_bnpl.filter(obj => obj.name === filters.name) : user_bnpl;
+                        user_bnpl = (filters.name !== null && filters.name !== undefined) ? user_bnpl.filter(obj => obj.name.toLowerCase().trim() === filters.name.toLowerCase().trim()) : user_bnpl;
                         user_bnpl = (filters.phone !== null && filters.phone !== undefined) ? user_bnpl.filter(obj => obj.phone === filters.phone) : user_bnpl;
                         user_bnpl = (filters.citizenId !== null && filters.citizenId !== undefined) ? user_bnpl.filter(obj => obj.citizenId === filters.citizenId) : user_bnpl;
                         if (user_bnpl.length > 0) {
