@@ -42,7 +42,6 @@ const UserController = {
     getAllEAP: async (req, res, next) => {
         try {
             const users = await Eap_Customer.find();
-            console.log("Users: ", users);
             let result = [];
             users.map((user, index) => {
                 let { password, __v, ...others } = user._doc;
@@ -382,14 +381,8 @@ const UserController = {
 
     search: async (req, res, next) => {
         try {
-            let name = req.query.name;
-            let email = req.query.email;
-            let phone = req.query.phone;
-            let nid = req.query.nid;
-            console.log("Name: ", req.query.name);
-            console.log("Email: ", req.query.email);
-            console.log("Phone: ", req.query.phone);
-            console.log("Nid: ", req.query.nid);
+            let filters = req.query;
+            console.log("Filters: ", filters);
 
             let user_eaps = await Eap_Customer.find();
             let user_bnpls = await Bnpl_Personal.find();
@@ -398,28 +391,54 @@ const UserController = {
             let user_bnpl_ref = null;
 
             if (user_eaps.length > 0 || user_bnpls.length > 0) {
-                let user_eap = user_eaps.filter(x => x.email === email || x.phone === phone);
+                let user_eap = user_eaps;
+                user_eap = (filters.username !== null && filters.username !== undefined) ? user_eap.filter(obj => obj.username === filters.username) : user_eap;
+                console.log("USER_EAP username: ", user_eap);
+                user_eap = (filters.email !== null && filters.email !== undefined) ? user_eap.filter(obj => obj.email === filters.email) : user_eap;
+                console.log("USER_EAP email: ", user_eap);
+                user_eap = (filters.phone !== null && filters.phone !== undefined) ? user_eap.filter(obj => obj.phone === filters.phone) : user_eap;
+                console.log("USER_EAP phone: ", user_eap);
                 let user_eap_arr = [];
-                user_eap.map((user, index) => {
-                    let { password, isAdmin, __v, ...others } = user._doc;
-                    user_eap_arr.push({ ...others });
-                })
-                if (user_eap_arr.length > 0) {
-                    user_bnpl_ref = user_bnpls.filter(x => x.phone === user_eap_arr[0].phone);
-                    let { providers, items, tenor, credit_limit, __v, ...others } = user_bnpl_ref[0]._doc;
-                    user_bnpl_ref = { ...others };
+                if (user_eap.length > 0) {
+                    user_eap.map((user, index) => {
+                        let { password, isAdmin, __v, ...others } = user._doc;
+                        user_eap_arr.push({ ...others });
+                    })
+                    if (user_eap_arr.length > 0) {
+                        user_bnpl_ref = user_bnpls.filter(x => x.phone === user_eap_arr[0].phone);
+                        if (user_bnpl_ref.length > 0) {
+                            let { providers, items, tenor, credit_limit, __v, ...others } = user_bnpl_ref[0]._doc;
+                            user_bnpl_ref = { ...others };
+                        }
+                        else {
+                            user_bnpl_ref = [];
+                        }
+                    }
                 }
 
-                let user_bnpl = user_bnpls.filter(x => x.citizenId === nid || x.phone === phone && x.name.toLowerCase() === name.toLowerCase());
+                let user_bnpl = user_bnpls;
+                user_bnpl = (filters.name !== null && filters.name !== undefined) ? user_bnpl.filter(obj => obj.name === filters.name) : user_bnpl;
+                console.log("USER_BNPL name: ", user_bnpl);
+                user_bnpl = (filters.phone !== null && filters.phone !== undefined) ? user_bnpl.filter(obj => obj.phone === filters.phone) : user_bnpl;
+                console.log("USER_BNPL phone: ", user_bnpl);
+                user_bnpl = (filters.citizenId !== null && filters.citizenId !== undefined) ? user_bnpl.filter(obj => obj.citizenId === filters.citizenId) : user_bnpl;
+                console.log("USER_BNPL CitizenId: ", user_bnpl);
                 let user_bnpl_arr = [];
-                user_bnpl.map((user, index) => {
-                    let { providers, items, tenor, credit_limit, __v, ...others } = user._doc;
-                    user_bnpl_arr.push({ ...others });
-                })
-                if (user_bnpl_arr.length > 0) {
-                    user_eap_ref = user_eaps.filter(x => x.phone === user_bnpl_arr[0].phone);
-                    let { __v, password, ...others } = user_eap_ref[0]._doc;
-                    user_eap_ref = { ...others };
+                if (user_bnpl.length > 0) {
+                    user_bnpl.map((user, index) => {
+                        let { providers, items, tenor, credit_limit, __v, ...others } = user._doc;
+                        user_bnpl_arr.push({ ...others });
+                    })
+                    if (user_bnpl_arr.length > 0) {
+                        user_eap_ref = user_eaps.filter(x => x.phone === user_bnpl_arr[0].phone);
+                        if (user_eap_ref.length > 0) {
+                            let { __v, password, ...others } = user_eap_ref[0]._doc;
+                            user_eap_ref = { ...others };
+                        }
+                        else {
+                            user_eap_ref = [];
+                        }
+                    }
                 }
 
                 if (user_eap.length > 0 || user_bnpl.length > 0) {
