@@ -444,13 +444,12 @@ const UserController = {
                     let data1 = user_bnpl.length > 0 ? user_bnpl_arr : user_bnpl_ref;
                     let data2 = user_eap.length > 0 ? user_eap_arr : user_eap_ref;
 
-                    let isOk = null;
+                    let isOk = false;
 
-                    if (data1 !== null && data2 !== null) {
+                    if (data1 !== null && data2 !== null && data1.length > 0 && data2.length > 0) {
                         isOk = data1.map((dt1) => data2.map((dt2) => dt1.phone === dt2.phone));
                         isOk = isOk[0][0];
                     }
-
                     if (user_eap.length > 0 || user_bnpl.length > 0) {
                         if (isOk === true) {
                             return res.status(200).json({
@@ -466,7 +465,7 @@ const UserController = {
                                 input: {}
                             })
                         }
-                        else if ((data1 !== null || data2 !== null) && isOk === undefined) {
+                        else if (((data1 !== null && data1.length > 0) || (data2 !== null && data2.length > 0)) && isOk === false) {
                             return res.status(200).json({
                                 message: "Get customer successfully",
                                 data: {
