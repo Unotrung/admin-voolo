@@ -4,6 +4,8 @@ const Eap_Customer = require('../models/EAP_Customer');
 const Bnpl_Customer = require('../models/Bnpl_Customer');
 const bcrypt = require('bcrypt');
 const dotenv = require('dotenv');
+const sendMail = require('../helpers/sendMail');
+const { } = require('');
 
 dotenv.config();
 
@@ -941,6 +943,68 @@ const UserController = {
             next(err);
         }
     },
+
+    sendResetLinkEmail: async (req, res, next) => {
+        let email = req.body.email;
+        if (email === null || email === '') {
+            return res.status(400).json({
+                message: 'Please enter your email !',
+                status: false,
+            })
+        } else {
+            const customers = await Eap_Customer.find();
+            const customer = customers.find(x => x.email === email);
+            if (customer) {
+                sendMail(customer.email, "Reset password", `<a href="http://localhost:8000/v1/admin/password/reset/${customer.email}"> Reset Password </a>`);
+                return res.status(200).json({
+                    message: 'Send link reset email successsfully !',
+                    status: true,
+                });
+            }
+            else {
+                return res.status(404).json({
+                    message: 'Can not find customer !',
+                    status: false,
+                })
+            }
+        }
+    },
+
+    resetPasswordFromAdmin: async (req, res, next) => {
+        const { email, token, password } = req.body;
+        if (email !== null && email !== '' && token !== null && token !== '' && password !== null && password !== '') {
+            bcrypt.compare(email, token, (err, result) => {
+                if (result) {
+                    bcrypt.hash(password, 10).then((hashedPassword) => {
+                        const customers = await Eap_Customer.find();
+                        const customer = customers.find(x => x.email === email);
+                        if (customer) {
+                            customer.password = hashedPassword;
+                            customer.save()
+                                .then(() => {
+                                    return res.status(200).json({
+                                        message: 'Reset password successfully',
+                                        status: true,
+                                    })
+                                })
+                                .catch((err) => {
+                                    return res.status(200).json({
+                                        message: 'Reset password failure',
+                                        status: true,
+                                    })
+                                })
+                        }
+                    })
+                }
+            })
+        }
+        else {
+            return res.status(400).json({
+                message: 'Please enter your email, token, password !',
+                status: false,
+            })
+        }
+    }
 }
 
 module.exports = UserController;
