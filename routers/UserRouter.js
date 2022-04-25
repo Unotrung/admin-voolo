@@ -33,7 +33,4 @@ router.get('/getAllTrashEAP', UserController.getAllTrashEAP);
 
 router.delete('/deleteAccountBNPL', UserController.deleteAccountBNPL);
 router.delete('/deleteAccountEAP', UserController.deleteAccountEAP);
-
-router.post('/sendResetLinkEmail', UserController.sendResetLinkEmail);
-
 module.exports = router;
