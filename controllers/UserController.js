@@ -4,8 +4,7 @@ const Eap_Customer = require('../models/EAP_Customer');
 const Bnpl_Customer = require('../models/Bnpl_Customer');
 const bcrypt = require('bcrypt');
 const dotenv = require('dotenv');
-const sendMail = require('../helpers/sendMail');
-const { } = require('');
+// const sendMail = require('../helpers/sendMail');
 
 dotenv.config();
 
