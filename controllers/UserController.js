@@ -1,5 +1,5 @@
 const User_Provider = require('../models/User_Provider');
-const Bnpl_Personal = require('../models/Bnpl_Personals');
+const Bnpl_Personal = require('../models/Bnpl_Personal');
 const Eap_Customer = require('../models/EAP_Customer');
 const Bnpl_Customer = require('../models/Bnpl_Customer');
 const bcrypt = require('bcrypt');
