@@ -61,7 +61,7 @@ const OtpConfigController = {
                             }
                         })
                         .catch((err) => {
-                            return res.status(201).json({
+                            return res.status(409).json({
                                 message: "Change otp config failure",
                                 status: false,
                                 errorStatus: err.status || 500,
