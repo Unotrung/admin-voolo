@@ -1,35 +1,29 @@
-const OtpConfig = require('../models/Otp_Config');
+const Config = require('../models/Config');
 
-const OtpConfigController = {
+const ConfigController = {
 
-    getOtpConfig: async (req, res, next) => {
+    getConfig: async (req, res, next) => {
         try {
-            const otpConfig = await OtpConfig.findOne();
-            const { __v, config, ...others } = otpConfig._doc;
-            if (otpConfig) {
-                if (config === true) {
-                    return res.status(200).json({
-                        data: { ...others },
-                        name: "Email",
-                        value: config,
-                        message: "Get otpConfig successfully",
-                        status: true
-                    })
-                }
-                else {
-                    return res.status(200).json({
-                        data: { ...others },
-                        name: "Sms",
-                        value: config,
-                        message: "Get otpConfig successfully",
-                        status: true
-                    })
-                }
+            const config = await Config.find();
+            let result = [];
+            if (config.length > 0) {
+                config.map((item, index) => {
+                    let { __v, ...others } = item._doc;
+                    result.push({ ...others });
+                });
+                return res.status(200).json({
+                    count: config.length,
+                    data: result,
+                    message: "Get list config success",
+                    status: true
+                })
             }
             else {
-                return res.status(404).json({
-                    message: "Otp Config is not init",
-                    status: false
+                return res.status(200).json({
+                    count: config.length,
+                    data: null,
+                    message: "List config is empty ",
+                    status: true
                 })
             }
         }
@@ -38,31 +32,23 @@ const OtpConfigController = {
         }
     },
 
-    putOtpConfig: async (req, res, next) => {
+    putConfig: async (req, res, next) => {
         try {
-            const config = Boolean(req.body.otp_config);
-            if (config !== null && config !== '') {
-                const otpConfig = await OtpConfig.findOne();
-                console.log("OTP CONFIG: ", otpConfig);
-                if (otpConfig) {
-                    await otpConfig.updateOne({ $set: { config: config } })
+            const id = req.body.id;
+            const value = Boolean(req.body.value);
+            if (id !== null && id !== '' && value !== null && value !== '') {
+                const config = await Config.findById(id);
+                if (config) {
+                    await config.updateOne({ $set: { value: value } })
                         .then((data) => {
-                            if (config === true) {
-                                return res.status(201).json({
-                                    message: "Change otp config from sms to email successfully",
-                                    status: true
-                                })
-                            }
-                            else if (config === false) {
-                                return res.status(201).json({
-                                    message: "Change otp config from email to sms successfully",
-                                    status: true
-                                })
-                            }
+                            return res.status(201).json({
+                                message: `Update ${config.name} Successfully. ${config.name} is ${value ? 'open' : 'close'}`,
+                                status: true
+                            })
                         })
                         .catch((err) => {
                             return res.status(409).json({
-                                message: "Change otp config failure",
+                                message: `Update ${config.name} Failure. ${config.name} is ${config.value ? 'open' : 'close'}`,
                                 status: false,
                                 errorStatus: err.status || 500,
                                 errorMessage: err.message,
@@ -71,7 +57,7 @@ const OtpConfigController = {
                 }
                 else {
                     return res.status(404).json({
-                        message: 'Can not find otp config to update',
+                        message: 'Can not find config to update',
                         status: false,
                         statusCode: 900
                     })
@@ -79,7 +65,7 @@ const OtpConfigController = {
             }
             else {
                 return res.status(400).json({
-                    message: 'Please choose your config !',
+                    message: 'Please enter your id and choose your config !',
                     status: false
                 })
             }
@@ -91,4 +77,4 @@ const OtpConfigController = {
 
 }
 
-module.exports = OtpConfigController;
+module.exports = ConfigController;
