@@ -278,6 +278,9 @@ const UserController = {
                 else if (search === "phone") {
                     result = customers.filter(x => x.phone === value);
                 }
+                else if (search === "citizenId") {
+                    result = customers.filter(x => x.citizenId === value);
+                }
                 else if (search === "createdAt") {
                     result = await Bnpl_Personal.find({ createdAt: { $gte: from, $lte: (to + 'T23:59:59.999Z') } });
                 }
