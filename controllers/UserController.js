@@ -945,6 +945,30 @@ const UserController = {
             next(err);
         }
     },
+
+    /*
+    * Report BNPL Registrations
+    * By UNO TRUNG
+    * 28-04-2022
+    */
+
+    getReportBNPL:async(req, res, next)=>{
+        try{
+            let allBnpl = await Bnpl_Customer.find();
+            return res.status(200).json({
+                status:true,
+                data: {
+                    total:allBnpl.length,
+                    step2:allBnpl.filter(x => x.step == 2).length,
+                    step3:allBnpl.filter(x => x.step == 3).length,
+                    step4:allBnpl.filter(x => x.step == 4).length,
+                }
+            });
+        }
+        catch(err){
+            next(err);
+        }
+    }
 }
 
 module.exports = UserController;

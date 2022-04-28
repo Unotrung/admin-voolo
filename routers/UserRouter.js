@@ -33,4 +33,7 @@ router.get('/getAllTrashEAP', UserController.getAllTrashEAP);
 
 router.delete('/deleteAccountBNPL', UserController.deleteAccountBNPL);
 router.delete('/deleteAccountEAP', UserController.deleteAccountEAP);
+
+//Report
+router.get('/getReportBNPL',UserController.getReportBNPL);
 module.exports = router;
