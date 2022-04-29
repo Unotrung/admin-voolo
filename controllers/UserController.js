@@ -388,8 +388,10 @@ const UserController = {
             let filters = req.query;
             console.log("Filters: ", filters);
             if ((filters.username !== null && filters.username !== undefined) || (filters.email !== null && filters.email !== undefined) || (filters.phone !== null && filters.phone !== undefined) || (filters.name !== null && filters.name !== undefined) || (filters.citizenId !== null && filters.citizenId !== undefined)) {
-                let user_eaps = await Eap_Customer.find();
-                let user_bnpls = await Bnpl_Personal.find();
+                let from = new Date(filters.from);
+                let to = new Date(filters.to + 'T23:59:59.999Z');
+                let user_eaps = await Eap_Customer.find({ createdAt: { $gte: from, $lte: to} });
+                let user_bnpls = await Bnpl_Personal.find({ createdAt: { $gte: from, $lte: to} });
 
                 let user_eap_ref = [];
                 let user_bnpl_ref = [];
