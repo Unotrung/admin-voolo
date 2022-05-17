@@ -4,8 +4,9 @@ const Eap_Customer = require('../models/EAP_Customer');
 const Bnpl_Customer = require('../models/Bnpl_Customer');
 const bcrypt = require('bcrypt');
 const dotenv = require('dotenv');
+const jwt = require("jsonwebtoken");
 // const sendMail = require('../helpers/sendMail');
-
+const auth = require("../middleware/auth");
 dotenv.config();
 
 const UserController = {
@@ -103,7 +104,7 @@ const UserController = {
 
     getAllBNPLPersonal: async (req, res, next) => {
         try {
-            const users = await Bnpl_Personal.find();
+            const users = await Bnpl_Personal.find({ "step": { "$not": { "$all": [4] } } });
             let result = [];
             users.map((user, index) => {
                 let { providers, items, tenor, credit_limit, __v, ...others } = user._doc;
@@ -188,13 +189,20 @@ const UserController = {
                 if (!user) {
                     const salt = await bcrypt.genSalt(10);
                     const hashed = await bcrypt.hash(password, salt);
-                    const user = await new User_Provider({ username: username, password: hashed });
+                    const user = await new User_Provider({ username: username, password: hashed});
                     await user.save()
                         .then((data) => {
+                            // Create token
+                            const token = jwt.sign(
+                                { user_id: data._id, username:data.username },
+                                process.env.JWT_ACCESS_KEY,
+                                { expiresIn: "2h", }
+                            );
                             return res.status(201).json({
                                 data: {
                                     id: data._id,
                                     username: data.username,
+                                    token:  token
                                 },
                                 message: "Add user successfully",
                                 status: true
@@ -243,6 +251,13 @@ const UserController = {
                     return res.status(404).json({ message: "Wrong password. Please try again !", status: false });
                 }
                 if (user && valiPassword) {
+                    // Create token
+                    user._doc.token = jwt.sign(
+                        { user_id: user._id, username:user.username },
+                        process.env.JWT_ACCESS_KEY,
+                        { expiresIn: "2h", }
+                    );
+                    user._doc.expiresIn = "7200";
                     const { password, isAdmin, __v, ...others } = user._doc;
                     return res.status(200).json({
                         message: "Login successfully",
@@ -956,7 +971,7 @@ const UserController = {
 
     getReportBNPL:async(req, res, next)=>{
         try{
-            let allBnpl = await Bnpl_Customer.find();
+            let allBnpl = await Bnpl_Customer.find({ "step": { "$not": { "$all": [4] } } });
             return res.status(200).json({
                 status:true,
                 data: {
