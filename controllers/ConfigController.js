@@ -4,13 +4,8 @@ const ConfigController = {
 
     getConfig: async (req, res, next) => {
         try {
-            const config = await Config.find();
-            let result = [];
+            const config = await Config.find().select('-__v');
             if (config.length > 0) {
-                config.map((item, index) => {
-                    let { __v, ...others } = item._doc;
-                    result.push({ ...others });
-                });
                 return res.status(200).json({
                     count: config.length,
                     data: result,
