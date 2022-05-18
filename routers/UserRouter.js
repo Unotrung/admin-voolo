@@ -1,5 +1,4 @@
 const UserController = require('../controllers/UserController');
-// const Middleware = require('../middleware/auth');
 
 const router = require('express').Router();
 

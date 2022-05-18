@@ -5,8 +5,7 @@ const Bnpl_Customer = require('../models/Bnpl_Customer');
 const bcrypt = require('bcrypt');
 const dotenv = require('dotenv');
 const jwt = require("jsonwebtoken");
-// const sendMail = require('../helpers/sendMail');
-const auth = require("../middleware/auth");
+
 dotenv.config();
 
 const UserController = {
@@ -189,12 +188,12 @@ const UserController = {
                 if (!user) {
                     const salt = await bcrypt.genSalt(10);
                     const hashed = await bcrypt.hash(password, salt);
-                    const user = await new User_Provider({ username: username, password: hashed});
+                    const user = await new User_Provider({ username: username, password: hashed });
                     await user.save()
                         .then((data) => {
                             // Create token
                             const token = jwt.sign(
-                                { user_id: data._id, username:data.username },
+                                { user_id: data._id, username: data.username },
                                 process.env.JWT_ACCESS_KEY,
                                 { expiresIn: "2h", }
                             );
@@ -202,7 +201,7 @@ const UserController = {
                                 data: {
                                     id: data._id,
                                     username: data.username,
-                                    token:  token
+                                    token: token
                                 },
                                 message: "Add user successfully",
                                 status: true
@@ -253,7 +252,7 @@ const UserController = {
                 if (user && valiPassword) {
                     // Create token
                     user._doc.token = jwt.sign(
-                        { user_id: user._id, username:user.username },
+                        { user_id: user._id, username: user.username },
                         process.env.JWT_ACCESS_KEY,
                         { expiresIn: "2h", }
                     );
@@ -405,8 +404,8 @@ const UserController = {
             if ((filters.username !== null && filters.username !== undefined) || (filters.email !== null && filters.email !== undefined) || (filters.phone !== null && filters.phone !== undefined) || (filters.name !== null && filters.name !== undefined) || (filters.citizenId !== null && filters.citizenId !== undefined)) {
                 let from = new Date(filters.from);
                 let to = new Date(filters.to + 'T23:59:59.999Z');
-                let user_eaps = await Eap_Customer.find({ createdAt: { $gte: from, $lte: to} });
-                let user_bnpls = await Bnpl_Personal.find({ createdAt: { $gte: from, $lte: to} });
+                let user_eaps = await Eap_Customer.find({ createdAt: { $gte: from, $lte: to } });
+                let user_bnpls = await Bnpl_Personal.find({ createdAt: { $gte: from, $lte: to } });
 
                 let user_eap_ref = [];
                 let user_bnpl_ref = [];
@@ -969,20 +968,20 @@ const UserController = {
     * 28-04-2022
     */
 
-    getReportBNPL:async(req, res, next)=>{
-        try{
+    getReportBNPL: async (req, res, next) => {
+        try {
             let allBnpl = await Bnpl_Customer.find({ "step": { "$not": { "$all": [4] } } });
             return res.status(200).json({
-                status:true,
+                status: true,
                 data: {
-                    total:allBnpl.length,
-                    step2:allBnpl.filter(x => x.step == 2).length,
-                    step3:allBnpl.filter(x => x.step == 3).length,
-                    step4:allBnpl.filter(x => x.step == 4).length,
+                    total: allBnpl.length,
+                    step2: allBnpl.filter(x => x.step == 2).length,
+                    step3: allBnpl.filter(x => x.step == 3).length,
+                    step4: allBnpl.filter(x => x.step == 4).length,
                 }
             });
         }
-        catch(err){
+        catch (err) {
             next(err);
         }
     }

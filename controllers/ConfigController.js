@@ -29,26 +29,21 @@ const ConfigController = {
 
     putConfig: async (req, res, next) => {
         try {
-            const id = req.body.id;
-            const value = Boolean(req.body.value);
-            if (id !== null && id !== '' && value !== null && value !== '') {
-                const config = await Config.findById(id);
+            let params = [];
+            params = req.body.params;
+            if (params !== null && params.length > 0) {
+                let config = await Config.find().select('-__v');
                 if (config) {
-                    await config.updateOne({ $set: { value: value } })
-                        .then((data) => {
-                            return res.status(201).json({
-                                message: `Update ${config.name} Successfully. ${config.name} is ${value ? 'open' : 'close'}`,
-                                status: true
-                            })
-                        })
-                        .catch((err) => {
-                            return res.status(409).json({
-                                message: `Update ${config.name} Failure. ${config.name} is ${config.value ? 'open' : 'close'}`,
-                                status: false,
-                                errorStatus: err.status || 500,
-                                errorMessage: err.message,
-                            })
-                        })
+                    params.map(async (item, index) => {
+                        await Config.updateOne(
+                            { _id: Object.keys(item)[0] },
+                            { $set: { value: Boolean(Object.values(item)[0]) } }
+                        )
+                    });
+                    return res.status(201).json({
+                        message: `Update all config successfully`,
+                        status: true
+                    })
                 }
                 else {
                     return res.status(404).json({
@@ -60,8 +55,9 @@ const ConfigController = {
             }
             else {
                 return res.status(400).json({
-                    message: 'Please enter your id and choose your config !',
-                    status: false
+                    message: 'Please send params to update config !',
+                    status: false,
+                    statusCode: 1005
                 })
             }
         }
