@@ -102,7 +102,7 @@ const UserController = {
 
     getAllBNPLPersonal: async (req, res, next) => {
         try {
-            const users = await Bnpl_Personal.find({ "step": { "$not": { "$all": [4] } } });
+            const users = await Bnpl_Personal.find({ step: { $not: { $all: [4] } } });
             let result = [];
             users.map((user, index) => {
                 let { providers, items, tenor, credit_limit, __v, ...others } = user._doc;
