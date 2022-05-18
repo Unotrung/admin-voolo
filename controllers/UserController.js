@@ -73,7 +73,6 @@ const UserController = {
     getAllBNPLCustomer: async (req, res, next) => {
         try {
             const users = await Bnpl_Customer.find();
-            console.log("Users: ", users);
             let result = [];
             users.map((user, index) => {
                 let { pin, __v, ...others } = user._doc;
@@ -407,7 +406,6 @@ const UserController = {
     search: async (req, res, next) => {
         try {
             let filters = req.query;
-            console.log("Filters: ", filters);
             if ((filters.username !== null && filters.username !== undefined) || (filters.email !== null && filters.email !== undefined) || (filters.phone !== null && filters.phone !== undefined) || (filters.name !== null && filters.name !== undefined) || (filters.citizenId !== null && filters.citizenId !== undefined)) {
                 let from = new Date(filters.from);
                 let to = new Date(filters.to + 'T23:59:59.999Z');
