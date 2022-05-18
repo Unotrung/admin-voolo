@@ -8,7 +8,7 @@ const ConfigController = {
             if (config.length > 0) {
                 return res.status(200).json({
                     count: config.length,
-                    data: result,
+                    data: config,
                     message: "Get list config success",
                     status: true
                 })
