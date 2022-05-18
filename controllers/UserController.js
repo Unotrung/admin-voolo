@@ -1,7 +1,7 @@
 const User_Provider = require('../models/User_Provider');
 const Bnpl_Personal = require('../models/Bnpl_Personal');
-const Eap_Customer = require('../models/EAP_Customer');
 const Bnpl_Customer = require('../models/Bnpl_Customer');
+const Eap_Customer = require('../models/EAP_Customer');
 const bcrypt = require('bcrypt');
 const dotenv = require('dotenv');
 const jwt = require("jsonwebtoken");
@@ -283,41 +283,52 @@ const UserController = {
             let value = req.query.value;
             let from = req.query.from;
             let to = req.query.to;
-            let customers = await Bnpl_Personal.find();
-            if (customers && search !== "" && search !== null && ((value !== "" && value !== null) || (from !== "" && from !== null && to !== "" && to !== null))) {
-                let result = null;
+            let personals = await Bnpl_Personal.find();
+            let customers = await Bnpl_Customer.find();
+            if (personals && customers && search !== "" && search !== null && search !== undefined && ((value !== "" && value !== null) || (from !== "" && from !== null && to !== "" && to !== null))) {
+                let result = [];
                 if (search === "name") {
-                    result = customers.filter(x => x.name.toLowerCase() === value.toLowerCase());
+                    result = personals.filter(x => x.name.toLowerCase() === value.toLowerCase());
                 }
                 else if (search === "phone") {
-                    result = customers.filter(x => x.phone === value);
+                    result = personals.filter(x => x.phone === value);
                 }
                 else if (search === "citizenId") {
-                    result = customers.filter(x => x.citizenId === value);
+                    result = personals.filter(x => x.citizenId === value);
+                }
+                else if (search === "step") {
+                    let steps = customers.filter(x => x.step === Number(value));
+                    let arrStep = [];
+                    steps.map((item, index) => {
+                        let { deleted, refreshToken, loginAttempts, pin, __v, ...others } = item._doc;
+                        arrStep.push({ ...others });
+                    });
+                    personals.map(x => {
+                        arrStep.map(y => {
+                            if (x.phone === y.phone) {
+                                result.push(x);
+                            }
+                        })
+                    });
                 }
                 else if (search === "createdAt") {
                     result = await Bnpl_Personal.find({ createdAt: { $gte: from, $lte: (to + 'T23:59:59.999Z') } });
                 }
                 if (result.length > 0) {
                     return res.status(200).json({
-                        message: "Get customer successfully",
+                        count: result.length,
+                        message: "Get customer bnpl successfully",
                         data: result,
                         status: true,
-                        draw: 1,
-                        recordsTotal: 1,
-                        recordsFiltered: 1,
-                        input: {}
                     })
                 }
                 else {
                     return res.status(404).json({
+                        count: result.length,
                         message: `This ${search} is not exists !`,
                         data: [],
                         status: true,
-                        draw: 1,
-                        recordsTotal: 0,
-                        recordsFiltered: 0,
-                        input: {}
+                        statusCode: 900
                     })
                 }
             }
@@ -325,10 +336,6 @@ const UserController = {
                 return res.status(200).json({
                     data: [],
                     status: true,
-                    draw: 1,
-                    recordsTotal: 0,
-                    recordsFiltered: 0,
-                    input: {}
                 })
             }
         }
@@ -984,7 +991,7 @@ const UserController = {
         catch (err) {
             next(err);
         }
-    }
+    },
 }
 
 module.exports = UserController;
