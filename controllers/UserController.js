@@ -3,12 +3,31 @@ const Bnpl_Personal = require('../models/Bnpl_Personal');
 const Bnpl_Customer = require('../models/Bnpl_Customer');
 const Eap_Customer = require('../models/EAP_Customer');
 const bcrypt = require('bcrypt');
-const dotenv = require('dotenv');
 const jwt = require("jsonwebtoken");
 
-dotenv.config();
-
 const UserController = {
+
+    generateAccessToken: (user) => {
+        return jwt.sign(
+            {
+                id: user.id,
+                username: user.username
+            },
+            process.env.JWT_ACCESS_KEY,
+            { expiresIn: "30m" }
+        );
+    },
+
+    generateRefreshToken: (user) => {
+        return jwt.sign(
+            {
+                id: user.id,
+                username: user.username
+            },
+            process.env.JWT_REFRESH_KEY,
+            { expiresIn: "3h" }
+        );
+    },
 
     getAllUserProvider: async (req, res, next) => {
         try {
@@ -192,18 +211,7 @@ const UserController = {
                     const user = await new User_Provider({ username: username, password: hashed });
                     await user.save()
                         .then((data) => {
-                            // Create token
-                            const token = jwt.sign(
-                                { user_id: data._id, username: data.username },
-                                process.env.JWT_ACCESS_KEY,
-                                { expiresIn: "2h", }
-                            );
                             return res.status(201).json({
-                                data: {
-                                    id: data._id,
-                                    username: data.username,
-                                    token: token
-                                },
                                 message: "Add user successfully",
                                 status: true
                             })
@@ -220,14 +228,16 @@ const UserController = {
                 else {
                     return res.status(409).json({
                         message: "User is already exists",
-                        status: true
+                        status: false,
+                        statusCode: 1000
                     })
                 }
             }
             else {
                 return res.status(400).json({
                     message: "Please enter your username and password !",
-                    status: false
+                    status: false,
+                    statusCode: 1005
                 })
             }
         }
@@ -244,33 +254,91 @@ const UserController = {
                 const users = await User_Provider.find();
                 const user = users.find(x => x.username.toLowerCase() === username.toLowerCase());
                 if (!user) {
-                    return res.status(404).json({ message: "Wrong username. Please try again !", status: false });
+                    return res.status(404).json({ message: "Wrong username. Please try again !", status: false, statusCode: 1002 });
                 }
                 const valiPassword = await bcrypt.compare(password, user.password);
                 if (!valiPassword) {
-                    return res.status(404).json({ message: "Wrong password. Please try again !", status: false });
+                    return res.status(404).json({ message: "Wrong password. Please try again !", status: false, statusCode: 1003 });
                 }
                 if (user && valiPassword) {
-                    // Create token
-                    user._doc.token = jwt.sign(
-                        { user_id: user._id, username: user.username },
-                        process.env.JWT_ACCESS_KEY,
-                        { expiresIn: "2h", }
-                    );
-                    user._doc.expiresIn = "7200";
-                    const { password, isAdmin, __v, ...others } = user._doc;
-                    return res.status(200).json({
-                        message: "Login successfully",
-                        data: { ...others },
-                        status: true,
-                    });
+                    const accessToken = UserController.generateAccessToken(user);
+                    const refreshToken = UserController.generateRefreshToken(user);
+                    user.refreshToken = refreshToken;
+                    await user.save()
+                        .then((data) => {
+                            const { password, isAdmin, __v, ...others } = user._doc;
+                            return res.status(200).json({
+                                message: "Login successfully",
+                                data: { ...others },
+                                token: accessToken,
+                                status: true
+                            });
+                        })
+                        .catch((err) => {
+                            return res.status(409).json({
+                                message: "Login failure",
+                                status: false,
+                                errorStatus: err.status || 500,
+                                errorMessage: err.message
+                            });
+                        })
                 }
             }
             else {
                 return res.status(400).json({
                     message: "Please enter your username and password !",
-                    status: false
+                    status: false,
+                    statusCode: 1005
                 })
+            }
+        }
+        catch (err) {
+            next(err);
+        }
+    },
+
+    requestRefreshToken: async (req, res, next) => {
+        try {
+            let refreshToken = req.body.refreshToken;
+            if (refreshToken !== null && refreshToken !== '') {
+                const customers = await User_Provider.find();
+                const customer = customers.find(x => x.refreshToken === refreshToken);
+                if (customer) {
+                    let newAccessToken = UserController.generateAccessToken(customer);
+                    let newRefreshToken = UserController.generateRefreshToken(customer);
+                    customer.refreshToken = newRefreshToken;
+                    await customer.save()
+                        .then((data) => {
+                            return res.status(201).json({
+                                message: 'Update refreshToken successfully',
+                                accessToken: newAccessToken,
+                                refreshToken: newRefreshToken,
+                                status: true
+                            })
+                        })
+                        .catch((err) => {
+                            return res.status(409).json({
+                                message: 'Update refreshToken failure',
+                                status: false,
+                                errorStatus: err.status || 500,
+                                errorMessage: err.message
+                            })
+                        })
+                }
+                else {
+                    return res.status(409).json({
+                        message: "Can not find this account to update !",
+                        status: false,
+                        statusCode: 900
+                    });
+                }
+            }
+            else {
+                return res.status(400).json({
+                    message: "Please enter your refreshToken. Do not leave any fields blank !",
+                    status: false,
+                    statusCode: 1005
+                });
             }
         }
         catch (err) {
@@ -320,7 +388,7 @@ const UserController = {
                         count: result.length,
                         message: "Get customer bnpl successfully",
                         data: result,
-                        status: true,
+                        status: true
                     })
                 }
                 else {
@@ -328,7 +396,7 @@ const UserController = {
                         count: result.length,
                         message: `This ${search} is not exists !`,
                         data: [],
-                        status: true,
+                        status: false,
                         statusCode: 900
                     })
                 }
@@ -368,24 +436,19 @@ const UserController = {
                 }
                 if (result.length > 0) {
                     return res.status(200).json({
+                        count: result.length,
                         message: "Get customer successfully",
                         data: result,
-                        status: true,
-                        draw: 1,
-                        recordsTotal: 1,
-                        recordsFiltered: 1,
-                        input: {}
+                        status: true
                     })
                 }
                 else {
                     return res.status(404).json({
+                        count: result.length,
                         message: `This ${search} is not exists !`,
                         data: [],
-                        status: true,
-                        draw: 1,
-                        recordsTotal: 0,
-                        recordsFiltered: 0,
-                        input: {}
+                        status: false,
+                        statusCode: 900
                     })
                 }
             }
@@ -393,10 +456,6 @@ const UserController = {
                 return res.status(200).json({
                     data: [],
                     status: true,
-                    draw: 1,
-                    recordsTotal: 0,
-                    recordsFiltered: 0,
-                    input: {}
                 })
             }
         }
@@ -485,11 +544,7 @@ const UserController = {
                                     BNPL: data1,
                                     EAP: data2,
                                 },
-                                status: true,
-                                draw: 1,
-                                recordsTotal: 1,
-                                recordsFiltered: 1,
-                                input: {}
+                                status: true
                             })
                         }
                         else if (((data1 !== null && data1.length > 0) || (data2 !== null && data2.length > 0)) && isOk === false) {
@@ -499,11 +554,7 @@ const UserController = {
                                     BNPL: data1,
                                     EAP: data2,
                                 },
-                                status: true,
-                                draw: 1,
-                                recordsTotal: 1,
-                                recordsFiltered: 1,
-                                input: {}
+                                status: true
                             })
                         }
                         else {
@@ -513,11 +564,8 @@ const UserController = {
                                     BNPL: [],
                                     EAP: [],
                                 },
-                                status: true,
-                                draw: 1,
-                                recordsTotal: 1,
-                                recordsFiltered: 1,
-                                input: {}
+                                status: false,
+                                statusCode: 900
                             })
                         }
                     }
@@ -528,11 +576,8 @@ const UserController = {
                                 BNPL: [],
                                 EAP: [],
                             },
-                            status: true,
-                            draw: 1,
-                            recordsTotal: 1,
-                            recordsFiltered: 1,
-                            input: {}
+                            status: false,
+                            statusCode: 900
                         })
                     }
                 }
@@ -543,11 +588,7 @@ const UserController = {
                             BNPL: [],
                             EAP: [],
                         },
-                        status: true,
-                        draw: 1,
-                        recordsTotal: 1,
-                        recordsFiltered: 1,
-                        input: {}
+                        status: true
                     })
                 }
             }
@@ -558,11 +599,7 @@ const UserController = {
                         BNPL: [],
                         EAP: [],
                     },
-                    status: true,
-                    draw: 1,
-                    recordsTotal: 1,
-                    recordsFiltered: 1,
-                    input: {}
+                    status: true
                 })
             }
         }
@@ -708,16 +745,9 @@ const UserController = {
                     return res.status(400).json({
                         message: "Can not find user to delete !",
                         status: false,
+                        statusCode: 900
                     })
                 }
-            }
-            else {
-                return res.status(400).json({
-                    message: "Can not find id to delete user !",
-                    status: false,
-                    errorStatus: err.status || 500,
-                    errorMessage: err.message,
-                })
             }
         }
         catch (err) {
@@ -751,16 +781,9 @@ const UserController = {
                     return res.status(400).json({
                         message: "Can not find user to delete !",
                         status: false,
+                        statusCode: 900
                     })
                 }
-            }
-            else {
-                return res.status(400).json({
-                    message: "Can not find id to delete user !",
-                    status: false,
-                    errorStatus: err.status || 500,
-                    errorMessage: err.message,
-                })
             }
         }
         catch (err) {
@@ -793,8 +816,7 @@ const UserController = {
                 return res.status(400).json({
                     message: "Can not find id to delete user !",
                     status: false,
-                    errorStatus: err.status || 500,
-                    errorMessage: err.message,
+                    statusCode: 900
                 })
             }
         }
@@ -827,8 +849,7 @@ const UserController = {
                 return res.status(400).json({
                     message: "Can not find id to delete user !",
                     status: false,
-                    errorStatus: err.status || 500,
-                    errorMessage: err.message,
+                    statusCode: 900
                 })
             }
         }
@@ -862,8 +883,7 @@ const UserController = {
                 return res.status(400).json({
                     message: "Can not find id to restore user !",
                     status: false,
-                    errorStatus: err.status || 500,
-                    errorMessage: err.message,
+                    statusCode: 900
                 })
             }
         }
@@ -896,8 +916,7 @@ const UserController = {
                 return res.status(400).json({
                     message: "Can not find id to restore user !",
                     status: false,
-                    errorStatus: err.status || 500,
-                    errorMessage: err.message,
+                    statusCode: 900
                 })
             }
         }
@@ -992,6 +1011,52 @@ const UserController = {
             next(err);
         }
     },
+
+    logout: async (req, res, next) => {
+        try {
+            let id = req.body.id;
+            if (id !== null && id !== '') {
+                const customers = await User_Provider.find();
+                const customer = customers.find(x => x.id === id);
+                if (customer) {
+                    customer.refreshToken = null;
+                    await customer.save()
+                        .then((data) => {
+                            return res.status(201).json({
+                                message: 'Log out successfully',
+                                status: true
+                            })
+                        })
+                        .catch((err) => {
+                            return res.status(409).json({
+                                message: 'Log out failure',
+                                status: false,
+                                errorStatus: err.status || 500,
+                                errorMessage: err.message
+                            })
+                        })
+                }
+                else {
+                    return res.status(409).json({
+                        message: "Can not find this account to log out !",
+                        status: false,
+                        statusCode: 900
+                    });
+                }
+            }
+            else {
+                return res.status(400).json({
+                    message: "Please enter your id. Do not leave any fields blank !",
+                    status: false,
+                    statusCode: 1005
+                });
+            }
+        }
+        catch (err) {
+            next(err);
+        }
+    },
+
 }
 
 module.exports = UserController;

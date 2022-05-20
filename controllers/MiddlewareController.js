@@ -35,7 +35,7 @@ const MiddlewareController = {
     verifyTokenByMySelf: (req, res, next) => {
         try {
             MiddlewareController.verifyToken(req, res, () => {
-                if (req.user.id === req.params.id) {
+                if (req.user.id === req.params.id || req.user.username === req.body.username || req.user.id === req.body.id) {
                     next();
                 }
                 else {
