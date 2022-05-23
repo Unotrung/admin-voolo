@@ -15,8 +15,8 @@ router.get('/searchBNPL', MiddlewareController.verifySecurity, MiddlewareControl
 router.get('/searchEAP', MiddlewareController.verifySecurity, MiddlewareController.verifyToken, UserController.searchEAP);
 router.get('/search', MiddlewareController.verifySecurity, MiddlewareController.verifyToken, UserController.search);
 
-router.post('/register', UserController.register);
-router.post('/login', UserController.login);
+router.post('/register', MiddlewareController.verifySecurity, UserController.register);
+router.post('/login', MiddlewareController.verifySecurity, UserController.login);
 
 // Soft Delete
 router.delete('/deleteSoftBNPL/:id', MiddlewareController.verifySecurity, MiddlewareController.verifyToken, UserController.deleteSoftBNPL);
