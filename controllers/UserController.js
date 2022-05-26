@@ -3,7 +3,7 @@ const Bnpl_Personal = require('../models/Bnpl_Personal');
 const Bnpl_Customer = require('../models/Bnpl_Customer');
 const Eap_Customer = require('../models/EAP_Customer');
 const bcrypt = require('bcrypt');
-const jwt = require("jsonwebtoken");
+const jwt = require('jsonwebtoken');
 const { MSG_GET_LIST_SUCCESSFULLY, MSG_LIST_IS_EMPTY, MSG_UPDATE_SUCCESSFULLY, MSG_UPDATE_FAILURE, MSG_ENTER_ALL_FIELDS,
     MSG_DATA_NOT_FOUND, MSG_GET_DETAIL_SUCCESS, MSG_GET_DETAIL_FAILURE, MSG_ADD_SUCCESS, MSG_ADD_FAIL, MSG_WRONG_NAME, MSG_WRONG_PASSWORD,
     MSG_LOGIN_SUCCESS, MSG_LOGIN_FAIL, MSG_LOG_OUT_SUCCESS, MSG_LOG_OUT_FAIL, MSG_RESTORE_SUCCESS, MSG_RESTORE_FAIL, MSG_DELETE_SUCCESS, MSG_DELETE_FAIL }
