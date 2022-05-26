@@ -1,4 +1,6 @@
 const Config = require('../models/Config');
+const { MSG_GET_LIST_SUCCESSFULLY, MSG_LIST_IS_EMPTY, MSG_UPDATE_SUCCESSFULLY, MSG_UPDATE_FAILURE, MSG_ENTER_ALL_FIELDS, MSG_DATA_NOT_FOUND }
+    = require('../config/message/message');
 
 const ConfigController = {
 
@@ -9,7 +11,7 @@ const ConfigController = {
                 return res.status(200).json({
                     count: config.length,
                     data: config,
-                    message: "Get list config success",
+                    message: MSG_GET_LIST_SUCCESSFULLY,
                     status: true
                 })
             }
@@ -17,7 +19,7 @@ const ConfigController = {
                 return res.status(200).json({
                     count: config.length,
                     data: null,
-                    message: "List config is empty ",
+                    message: MSG_LIST_IS_EMPTY,
                     status: true
                 })
             }
@@ -41,13 +43,13 @@ const ConfigController = {
                         )
                     });
                     return res.status(201).json({
-                        message: `Update all config successfully`,
+                        message: MSG_UPDATE_SUCCESSFULLY,
                         status: true
                     })
                 }
                 else {
                     return res.status(404).json({
-                        message: 'Can not find config to update',
+                        message: MSG_DATA_NOT_FOUND,
                         status: false,
                         statusCode: 900
                     })
@@ -55,7 +57,7 @@ const ConfigController = {
             }
             else {
                 return res.status(400).json({
-                    message: 'Please send params to update config !',
+                    message: MSG_ENTER_ALL_FIELDS,
                     status: false,
                     statusCode: 1005
                 })

@@ -7,11 +7,11 @@ const MiddlewareController = {
             const token = req.header('authorization');
             if (token) {
                 // 'Beaer [token]'
-                const accessToken = token.split(" ")[1];
+                const accessToken = token.split(' ')[1];
                 jwt.verify(accessToken, process.env.JWT_ACCESS_KEY, (err, user) => {
                     if (err) {
                         return res.status(403).json({
-                            message: "Token is not valid",
+                            message: 'Token is not valid',
                             statusCode: 4003
                         });
                     }
@@ -61,7 +61,7 @@ const MiddlewareController = {
             }
             else {
                 return res.status(401).json({
-                    message: "You do not have permission to access this app",
+                    message: 'You do not have permission to access this app',
                     statusCode: 9000
                 });
             }

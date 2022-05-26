@@ -4,6 +4,10 @@ const Bnpl_Customer = require('../models/Bnpl_Customer');
 const Eap_Customer = require('../models/EAP_Customer');
 const bcrypt = require('bcrypt');
 const jwt = require("jsonwebtoken");
+const { MSG_GET_LIST_SUCCESSFULLY, MSG_LIST_IS_EMPTY, MSG_UPDATE_SUCCESSFULLY, MSG_UPDATE_FAILURE, MSG_ENTER_ALL_FIELDS,
+    MSG_DATA_NOT_FOUND, MSG_GET_DETAIL_SUCCESS, MSG_GET_DETAIL_FAILURE, MSG_ADD_SUCCESS, MSG_ADD_FAIL, MSG_WRONG_NAME, MSG_WRONG_PASSWORD,
+    MSG_LOGIN_SUCCESS, MSG_LOGIN_FAIL, MSG_LOG_OUT_SUCCESS, MSG_LOG_OUT_FAIL, MSG_RESTORE_SUCCESS, MSG_RESTORE_FAIL, MSG_DELETE_SUCCESS, MSG_DELETE_FAIL }
+    = require('../config/message/message');
 
 const UserController = {
 
@@ -14,7 +18,7 @@ const UserController = {
                 username: user.username
             },
             process.env.JWT_ACCESS_KEY,
-            { expiresIn: "30m" }
+            { expiresIn: '30m' }
         );
     },
 
@@ -25,7 +29,7 @@ const UserController = {
                 username: user.username
             },
             process.env.JWT_REFRESH_KEY,
-            { expiresIn: "3h" }
+            { expiresIn: '3h' }
         );
     },
 
@@ -41,7 +45,7 @@ const UserController = {
                 return res.status(200).json({
                     count: users.length,
                     data: result,
-                    message: "Get list user success",
+                    message: MSG_GET_LIST_SUCCESSFULLY,
                     status: true
                 })
             }
@@ -49,7 +53,7 @@ const UserController = {
                 return res.status(200).json({
                     count: users.length,
                     data: null,
-                    message: "List user is empty ",
+                    message: MSG_LIST_IS_EMPTY,
                     status: true
                 })
             }
@@ -71,7 +75,7 @@ const UserController = {
                 return res.status(200).json({
                     count: users.length,
                     data: result,
-                    message: "Get list user eap success",
+                    message: MSG_GET_LIST_SUCCESSFULLY,
                     status: true
                 })
             }
@@ -79,7 +83,7 @@ const UserController = {
                 return res.status(200).json({
                     count: users.length,
                     data: null,
-                    message: "List user eap is empty ",
+                    message: MSG_LIST_IS_EMPTY,
                     status: true
                 })
             }
@@ -101,7 +105,7 @@ const UserController = {
                 return res.status(200).json({
                     count: users.length,
                     data: result,
-                    message: "Get list user bnpl success",
+                    message: MSG_GET_LIST_SUCCESSFULLY,
                     status: true
                 })
             }
@@ -109,7 +113,7 @@ const UserController = {
                 return res.status(200).json({
                     count: users.length,
                     data: null,
-                    message: "List user bnpl is empty ",
+                    message: MSG_LIST_IS_EMPTY,
                     status: true
                 })
             }
@@ -131,7 +135,7 @@ const UserController = {
                 return res.status(200).json({
                     count: users.length,
                     data: result,
-                    message: "Get list user bnpl success",
+                    message: MSG_GET_LIST_SUCCESSFULLY,
                     status: true
                 })
             }
@@ -139,7 +143,7 @@ const UserController = {
                 return res.status(200).json({
                     count: users.length,
                     data: null,
-                    message: "List user bnpl is empty ",
+                    message: MSG_LIST_IS_EMPTY,
                     status: true
                 })
             }
@@ -155,14 +159,14 @@ const UserController = {
             if (user) {
                 const { password, __v, ...others } = user._doc;
                 return res.status(200).json({
-                    message: "Get information of user eap successfully",
+                    message: MSG_GET_DETAIL_SUCCESS,
                     data: { ...others },
                     status: true
                 });
             }
             else {
                 return res.status(404).json({
-                    message: "This account infomation is not exists !",
+                    message: MSG_GET_DETAIL_FAILURE,
                     status: false,
                     statusCode: 900
                 });
@@ -179,14 +183,14 @@ const UserController = {
             if (user) {
                 const { providers, items, tenor, credit_limit, __v, ...others } = user._doc;
                 return res.status(200).json({
-                    message: "Get information of user bnpl successfully",
+                    message: MSG_GET_DETAIL_SUCCESS,
                     data: { ...others },
                     status: true
                 });
             }
             else {
                 return res.status(404).json({
-                    message: "This account infomation is not exists !",
+                    message: MSG_GET_DETAIL_FAILURE,
                     status: false,
                     statusCode: 900
                 });
@@ -212,13 +216,13 @@ const UserController = {
                     await user.save()
                         .then((data) => {
                             return res.status(201).json({
-                                message: "Add user successfully",
+                                message: MSG_ADD_SUCCESS,
                                 status: true
                             })
                         })
                         .catch((err) => {
                             return res.status(409).json({
-                                message: "Add user failure",
+                                message: MSG_ADD_FAIL,
                                 status: false,
                                 errorStatus: err.status || 500,
                                 errorMessage: err.message,
@@ -235,7 +239,7 @@ const UserController = {
             }
             else {
                 return res.status(400).json({
-                    message: "Please enter your username and password !",
+                    message: MSG_ENTER_ALL_FIELDS,
                     status: false,
                     statusCode: 1005
                 })
@@ -254,11 +258,11 @@ const UserController = {
                 const users = await User_Provider.find();
                 const user = users.find(x => x.username.toLowerCase() === username.toLowerCase());
                 if (!user) {
-                    return res.status(404).json({ message: "Wrong username. Please try again !", status: false, statusCode: 1002 });
+                    return res.status(404).json({ message: MSG_WRONG_NAME, status: false, statusCode: 1002 });
                 }
                 const valiPassword = await bcrypt.compare(password, user.password);
                 if (!valiPassword) {
-                    return res.status(404).json({ message: "Wrong password. Please try again !", status: false, statusCode: 1003 });
+                    return res.status(404).json({ message: MSG_WRONG_PASSWORD, status: false, statusCode: 1003 });
                 }
                 if (user && valiPassword) {
                     const accessToken = UserController.generateAccessToken(user);
@@ -268,7 +272,7 @@ const UserController = {
                         .then((data) => {
                             const { password, isAdmin, __v, ...others } = user._doc;
                             return res.status(200).json({
-                                message: "Login successfully",
+                                message: MSG_LOGIN_SUCCESS,
                                 data: { ...others },
                                 token: accessToken,
                                 status: true
@@ -276,7 +280,7 @@ const UserController = {
                         })
                         .catch((err) => {
                             return res.status(409).json({
-                                message: "Login failure",
+                                message: MSG_LOGIN_FAIL,
                                 status: false,
                                 errorStatus: err.status || 500,
                                 errorMessage: err.message
@@ -286,7 +290,7 @@ const UserController = {
             }
             else {
                 return res.status(400).json({
-                    message: "Please enter your username and password !",
+                    message: MSG_ENTER_ALL_FIELDS,
                     status: false,
                     statusCode: 1005
                 })
@@ -310,7 +314,7 @@ const UserController = {
                     await customer.save()
                         .then((data) => {
                             return res.status(201).json({
-                                message: 'Update refreshToken successfully',
+                                message: MSG_UPDATE_SUCCESSFULLY,
                                 accessToken: newAccessToken,
                                 refreshToken: newRefreshToken,
                                 status: true
@@ -318,7 +322,7 @@ const UserController = {
                         })
                         .catch((err) => {
                             return res.status(409).json({
-                                message: 'Update refreshToken failure',
+                                message: MSG_UPDATE_FAILURE,
                                 status: false,
                                 errorStatus: err.status || 500,
                                 errorMessage: err.message
@@ -327,7 +331,7 @@ const UserController = {
                 }
                 else {
                     return res.status(409).json({
-                        message: "Can not find this account to update !",
+                        message: MSG_GET_DETAIL_FAILURE,
                         status: false,
                         statusCode: 900
                     });
@@ -335,7 +339,7 @@ const UserController = {
             }
             else {
                 return res.status(400).json({
-                    message: "Please enter your refreshToken. Do not leave any fields blank !",
+                    message: MSG_ENTER_ALL_FIELDS,
                     status: false,
                     statusCode: 1005
                 });
@@ -356,6 +360,8 @@ const UserController = {
             let customers = await Bnpl_Customer.find();
             if (personals && customers && search !== "" && search !== null && search !== undefined && ((value !== "" && value !== null) || (from !== "" && from !== null && to !== "" && to !== null))) {
                 let result = [];
+                let data = null;
+                let step = null;
                 if (search === "name") {
                     result = personals.filter(x => x.name.toLowerCase() === value.toLowerCase());
                 }
@@ -383,18 +389,28 @@ const UserController = {
                 else if (search === "createdAt") {
                     result = await Bnpl_Personal.find({ createdAt: { $gte: from, $lte: (to + 'T23:59:59.999Z') } });
                 }
+                data = customers.filter(y => result.map(item => {
+                    if (y.phone === item.phone) {
+                        step = y.step;
+                    }
+                }));
                 if (result.length > 0) {
                     return res.status(200).json({
+                        search: search,
                         count: result.length,
-                        message: "Get customer bnpl successfully",
-                        data: result,
+                        message: MSG_GET_DETAIL_SUCCESS,
+                        data: {
+                            result,
+                            step: step
+                        },
                         status: true
                     })
                 }
                 else {
                     return res.status(404).json({
+                        search: search,
                         count: result.length,
-                        message: `This ${search} is not exists !`,
+                        message: MSG_DATA_NOT_FOUND,
                         data: [],
                         status: false,
                         statusCode: 900
@@ -436,16 +452,18 @@ const UserController = {
                 }
                 if (result.length > 0) {
                     return res.status(200).json({
+                        search: search,
                         count: result.length,
-                        message: "Get customer successfully",
+                        message: MSG_GET_DETAIL_SUCCESS,
                         data: result,
                         status: true
                     })
                 }
                 else {
                     return res.status(404).json({
+                        search: search,
                         count: result.length,
-                        message: `This ${search} is not exists !`,
+                        message: MSG_DATA_NOT_FOUND,
                         data: [],
                         status: false,
                         statusCode: 900
@@ -539,7 +557,7 @@ const UserController = {
                     if (user_eap.length > 0 || user_bnpl.length > 0) {
                         if (isOk === true) {
                             return res.status(200).json({
-                                message: "Get customer successfully",
+                                message: MSG_GET_DETAIL_SUCCESS,
                                 data: {
                                     BNPL: data1,
                                     EAP: data2,
@@ -549,7 +567,7 @@ const UserController = {
                         }
                         else if (((data1 !== null && data1.length > 0) || (data2 !== null && data2.length > 0)) && isOk === false) {
                             return res.status(200).json({
-                                message: "Get customer successfully",
+                                message: MSG_GET_DETAIL_SUCCESS,
                                 data: {
                                     BNPL: data1,
                                     EAP: data2,
@@ -559,7 +577,7 @@ const UserController = {
                         }
                         else {
                             return res.status(404).json({
-                                message: "Can not find any user",
+                                message: MSG_GET_DETAIL_FAILURE,
                                 data: {
                                     BNPL: [],
                                     EAP: [],
@@ -571,7 +589,7 @@ const UserController = {
                     }
                     else if (user_eap.length === 0 && user_bnpl.length === 0) {
                         return res.status(404).json({
-                            message: "Can not find any user",
+                            message: MSG_GET_DETAIL_FAILURE,
                             data: {
                                 BNPL: [],
                                 EAP: [],
@@ -583,7 +601,7 @@ const UserController = {
                 }
                 else if (user_eaps.length === 0 && user_bnpls.length === 0) {
                     return res.status(200).json({
-                        message: "List user eap and list user bnpl is empty",
+                        message: MSG_LIST_IS_EMPTY,
                         data: {
                             BNPL: [],
                             EAP: [],
@@ -594,7 +612,7 @@ const UserController = {
             }
             else {
                 return res.status(200).json({
-                    message: "List user eap and list user bnpl is empty",
+                    message: MSG_LIST_IS_EMPTY,
                     data: {
                         BNPL: [],
                         EAP: [],
@@ -728,13 +746,13 @@ const UserController = {
                     await Bnpl_Customer.delete({ _id: id })
                         .then(() => {
                             return res.status(201).json({
-                                message: "Delete user successfully",
+                                message: MSG_DELETE_SUCCESS,
                                 status: true
                             })
                         })
                         .catch((err) => {
                             return res.status(409).json({
-                                message: "Delete user failure",
+                                message: MSG_DELETE_FAIL,
                                 status: false,
                                 errorStatus: err.status || 500,
                                 errorMessage: err.message,
@@ -743,7 +761,7 @@ const UserController = {
                 }
                 else {
                     return res.status(400).json({
-                        message: "Can not find user to delete !",
+                        message: MSG_GET_DETAIL_FAILURE,
                         status: false,
                         statusCode: 900
                     })
@@ -764,13 +782,13 @@ const UserController = {
                     await Eap_Customer.delete({ _id: id })
                         .then(() => {
                             return res.status(201).json({
-                                message: "Delete user successfully",
+                                message: MSG_DELETE_SUCCESS,
                                 status: true
                             })
                         })
                         .catch((err) => {
                             return res.status(409).json({
-                                message: "Delete user failure",
+                                message: MSG_DELETE_FAIL,
                                 status: false,
                                 errorStatus: err.status || 500,
                                 errorMessage: err.message,
@@ -779,7 +797,7 @@ const UserController = {
                 }
                 else {
                     return res.status(400).json({
-                        message: "Can not find user to delete !",
+                        message: MSG_GET_DETAIL_FAILURE,
                         status: false,
                         statusCode: 900
                     })
@@ -799,13 +817,13 @@ const UserController = {
                 await Bnpl_Customer.findByIdAndDelete(id)
                     .then(() => {
                         return res.status(201).json({
-                            message: "Delete user successfully",
+                            message: MSG_DELETE_SUCCESS,
                             status: true
                         })
                     })
                     .catch((err) => {
                         return res.status(409).json({
-                            message: "Delete user failure",
+                            message: MSG_DELETE_FAIL,
                             status: false,
                             errorStatus: err.status || 500,
                             errorMessage: err.message,
@@ -814,7 +832,7 @@ const UserController = {
             }
             else {
                 return res.status(400).json({
-                    message: "Can not find id to delete user !",
+                    message: MSG_GET_DETAIL_FAILURE,
                     status: false,
                     statusCode: 900
                 })
@@ -832,13 +850,13 @@ const UserController = {
                 await Eap_Customer.findByIdAndDelete(id)
                     .then(() => {
                         return res.status(201).json({
-                            message: "Delete user successfully",
+                            message: MSG_DELETE_SUCCESS,
                             status: true
                         })
                     })
                     .catch((err) => {
                         return res.status(409).json({
-                            message: "Delete user failure",
+                            message: MSG_DELETE_FAIL,
                             status: false,
                             errorStatus: err.status || 500,
                             errorMessage: err.message,
@@ -847,7 +865,7 @@ const UserController = {
             }
             else {
                 return res.status(400).json({
-                    message: "Can not find id to delete user !",
+                    message: MSG_GET_DETAIL_FAILURE,
                     status: false,
                     statusCode: 900
                 })
@@ -866,13 +884,13 @@ const UserController = {
                 await Bnpl_Customer.restore({ _id: id })
                     .then(() => {
                         return res.status(201).json({
-                            message: "Restore user successfully",
+                            message: MSG_RESTORE_SUCCESS,
                             status: true
                         })
                     })
                     .catch((err) => {
                         return res.status(409).json({
-                            message: "Restore user failure",
+                            message: MSG_RESTORE_FAIL,
                             status: false,
                             errorStatus: err.status || 500,
                             errorMessage: err.message,
@@ -881,7 +899,7 @@ const UserController = {
             }
             else {
                 return res.status(400).json({
-                    message: "Can not find id to restore user !",
+                    message: MSG_GET_DETAIL_FAILURE,
                     status: false,
                     statusCode: 900
                 })
@@ -899,13 +917,13 @@ const UserController = {
                 await Eap_Customer.restore({ _id: id })
                     .then(() => {
                         return res.status(201).json({
-                            message: "Restore user successfully",
+                            message: MSG_RESTORE_SUCCESS,
                             status: true
                         })
                     })
                     .catch((err) => {
                         return res.status(409).json({
-                            message: "Restore user failure",
+                            message: MSG_RESTORE_FAIL,
                             status: false,
                             errorStatus: err.status || 500,
                             errorMessage: err.message,
@@ -914,7 +932,7 @@ const UserController = {
             }
             else {
                 return res.status(400).json({
-                    message: "Can not find id to restore user !",
+                    message: MSG_GET_DETAIL_FAILURE,
                     status: false,
                     statusCode: 900
                 })
@@ -939,7 +957,7 @@ const UserController = {
                 return res.status(200).json({
                     count: trashUsers.length,
                     data: result,
-                    message: "Get list user bnpl in trash success",
+                    message: MSG_GET_LIST_SUCCESSFULLY,
                     status: true
                 })
             }
@@ -947,7 +965,7 @@ const UserController = {
                 return res.status(200).json({
                     count: trashUsers.length,
                     data: null,
-                    message: "List user bnpl in trash is empty ",
+                    message: MSG_LIST_IS_EMPTY,
                     status: true
                 })
             }
@@ -970,7 +988,7 @@ const UserController = {
                 return res.status(200).json({
                     count: trashUsers.length,
                     data: result,
-                    message: "Get list user eap in trash success",
+                    message: MSG_GET_LIST_SUCCESSFULLY,
                     status: true
                 })
             }
@@ -978,7 +996,7 @@ const UserController = {
                 return res.status(200).json({
                     count: trashUsers.length,
                     data: null,
-                    message: "List user eap in trash is empty ",
+                    message: MSG_LIST_IS_EMPTY,
                     status: true
                 })
             }
@@ -1023,13 +1041,13 @@ const UserController = {
                     await customer.save()
                         .then((data) => {
                             return res.status(201).json({
-                                message: 'Log out successfully',
+                                message: MSG_LOG_OUT_SUCCESS,
                                 status: true
                             })
                         })
                         .catch((err) => {
                             return res.status(409).json({
-                                message: 'Log out failure',
+                                message: MSG_LOG_OUT_FAIL,
                                 status: false,
                                 errorStatus: err.status || 500,
                                 errorMessage: err.message
@@ -1038,7 +1056,7 @@ const UserController = {
                 }
                 else {
                     return res.status(409).json({
-                        message: "Can not find this account to log out !",
+                        message: MSG_GET_DETAIL_FAILURE,
                         status: false,
                         statusCode: 900
                     });
@@ -1046,7 +1064,7 @@ const UserController = {
             }
             else {
                 return res.status(400).json({
-                    message: "Please enter your id. Do not leave any fields blank !",
+                    message: MSG_ENTER_ALL_FIELDS,
                     status: false,
                     statusCode: 1005
                 });

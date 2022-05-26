@@ -37,7 +37,7 @@ router.delete('/deleteAccountBNPL', UserController.deleteAccountBNPL);
 router.delete('/deleteAccountEAP', UserController.deleteAccountEAP);
 
 //Report
-router.get('/getReportBNPL', MiddlewareController.verifyToken, UserController.getReportBNPL);
+router.get('/getReportBNPL', MiddlewareController.verifySecurity, MiddlewareController.verifyToken, UserController.getReportBNPL);
 
 router.put('/requestRefreshToken', MiddlewareController.verifySecurity, MiddlewareController.verifyToken, UserController.requestRefreshToken);
 router.put('/logout', MiddlewareController.verifySecurity, MiddlewareController.verifyTokenByMySelf, UserController.logout);
