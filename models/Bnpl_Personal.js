@@ -52,10 +52,6 @@ const bnpl_personalSchema = new mongoose.Schema({
     personal_title_ref: {
         type: String,
         required: [true, 'Personal Title Ref is required'],
-        enum: {
-            values: ['Ông', 'Bà'],
-            message: 'Personal title ref is only allowed Ông or Bà'
-        },
     },
     name_ref: {
         type: String,
@@ -69,6 +65,18 @@ const bnpl_personalSchema = new mongoose.Schema({
     items: [{ type: mongoose.Schema.Types.ObjectId, ref: 'item' }],
     tenor: { type: mongoose.Schema.Types.ObjectId, ref: 'tenor' },
     credit_limit: {
+        type: Number,
+    },
+    consumed_limit: {
+        type: Number,
+    },
+    approve_limit: {
+        type: Number,
+    },
+    memo_debit: {
+        type: Number,
+    },
+    memo_credit: {
         type: Number,
     },
 
