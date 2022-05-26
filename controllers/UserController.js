@@ -179,9 +179,9 @@ const UserController = {
 
     getUserBNPL: async (req, res, next) => {
         try {
-            const user = await Bnpl_Personal.findById(req.params.id);
+            const user = await Bnpl_Personal.findById(req.params.id).populate('providers').populate('tenor');
             if (user) {
-                const { providers, items, tenor, credit_limit, __v, ...others } = user._doc;
+                const { items, __v, ...others } = user._doc;
                 return res.status(200).json({
                     message: MSG_GET_DETAIL_SUCCESS,
                     data: { ...others },

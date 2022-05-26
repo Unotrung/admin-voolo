@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const encrypt = require('mongoose-encryption');
 const dotenv = require('dotenv');
+const tenor = require('./Tenors');
+const bnpl_provider = require('./Bnpl_providers');
 
 dotenv.config();
 
