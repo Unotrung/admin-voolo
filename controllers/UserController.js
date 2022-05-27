@@ -485,30 +485,31 @@ const UserController = {
     search: async (req, res, next) => {
         try {
             let filters = req.query;
+
+            let RESPONSE_DATA_NULL = {
+                message: MSG_LIST_IS_EMPTY,
+                data: {
+                    BNPL: [],
+                    EAP: [],
+                },
+                status: true
+            }
+
+            let RESPONSE_DATA_FAILURE = {
+                message: MSG_GET_DETAIL_FAILURE,
+                data: {
+                    BNPL: [],
+                    EAP: [],
+                },
+                status: false,
+                statusCode: 900
+            }
+
             if ((filters.username !== null && filters.username !== undefined) || (filters.email !== null && filters.email !== undefined) || (filters.phone !== null && filters.phone !== undefined) || (filters.name !== null && filters.name !== undefined) || (filters.citizenId !== null && filters.citizenId !== undefined)) {
                 let from = new Date(filters.from);
                 let to = new Date(filters.to + 'T23:59:59.999Z');
                 let user_eaps = await Eap_Customer.find({ createdAt: { $gte: from, $lte: to } });
                 let user_bnpls = await Bnpl_Personal.find({ createdAt: { $gte: from, $lte: to } });
-
-                let RESPONSE_DATA_NULL = {
-                    message: MSG_LIST_IS_EMPTY,
-                    data: {
-                        BNPL: [],
-                        EAP: [],
-                    },
-                    status: true
-                }
-
-                let RESPONSE_DATA_FAILURE = {
-                    message: MSG_GET_DETAIL_FAILURE,
-                    data: {
-                        BNPL: [],
-                        EAP: [],
-                    },
-                    status: false,
-                    statusCode: 900
-                }
 
                 let user_eap_ref = [];
                 let user_bnpl_ref = [];
