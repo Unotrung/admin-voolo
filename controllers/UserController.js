@@ -491,6 +491,25 @@ const UserController = {
                 let user_eaps = await Eap_Customer.find({ createdAt: { $gte: from, $lte: to } });
                 let user_bnpls = await Bnpl_Personal.find({ createdAt: { $gte: from, $lte: to } });
 
+                let RESPONSE_DATA_NULL = {
+                    message: MSG_LIST_IS_EMPTY,
+                    data: {
+                        BNPL: [],
+                        EAP: [],
+                    },
+                    status: true
+                }
+
+                let RESPONSE_DATA_FAILURE = {
+                    message: MSG_GET_DETAIL_FAILURE,
+                    data: {
+                        BNPL: [],
+                        EAP: [],
+                    },
+                    status: false,
+                    statusCode: 900
+                }
+
                 let user_eap_ref = [];
                 let user_bnpl_ref = [];
                 let user_eap = [];
@@ -513,7 +532,7 @@ const UserController = {
                                 user_bnpl_ref = user_bnpls.filter(x => x.phone === user_eap_arr[0].phone);
                                 if (user_bnpl_ref.length > 0) {
                                     let { providers, items, tenor, credit_limit, __v, ...others } = user_bnpl_ref[0]._doc;
-                                    user_bnpl_ref.push({ ...others });
+                                    user_bnpl_ref = { ...others };
                                 }
                                 else {
                                     user_bnpl_ref = [];
@@ -536,7 +555,7 @@ const UserController = {
                                 user_eap_ref = user_eaps.filter(x => x.phone === user_bnpl_arr[0].phone);
                                 if (user_eap_ref.length > 0) {
                                     let { __v, password, ...others } = user_eap_ref[0]._doc;
-                                    user_eap_ref.push({ ...others });
+                                    user_eap_ref = { ...others };
                                 }
                                 else {
                                     user_eap_ref = [];
@@ -576,49 +595,19 @@ const UserController = {
                             })
                         }
                         else {
-                            return res.status(404).json({
-                                message: MSG_GET_DETAIL_FAILURE,
-                                data: {
-                                    BNPL: [],
-                                    EAP: [],
-                                },
-                                status: false,
-                                statusCode: 900
-                            })
+                            return res.status(404).json(RESPONSE_DATA_FAILURE)
                         }
                     }
                     else if (user_eap.length === 0 && user_bnpl.length === 0) {
-                        return res.status(404).json({
-                            message: MSG_GET_DETAIL_FAILURE,
-                            data: {
-                                BNPL: [],
-                                EAP: [],
-                            },
-                            status: false,
-                            statusCode: 900
-                        })
+                        return res.status(404).json(RESPONSE_DATA_FAILURE)
                     }
                 }
                 else if (user_eaps.length === 0 && user_bnpls.length === 0) {
-                    return res.status(200).json({
-                        message: MSG_LIST_IS_EMPTY,
-                        data: {
-                            BNPL: [],
-                            EAP: [],
-                        },
-                        status: true
-                    })
+                    return res.status(200).json(RESPONSE_DATA_NULL)
                 }
             }
             else {
-                return res.status(200).json({
-                    message: MSG_LIST_IS_EMPTY,
-                    data: {
-                        BNPL: [],
-                        EAP: [],
-                    },
-                    status: true
-                })
+                return res.status(200).json(RESPONSE_DATA_NULL)
             }
         }
         catch (err) {
