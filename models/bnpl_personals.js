@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 const encrypt = require('mongoose-encryption');
 const dotenv = require('dotenv');
-const tenor = require('./Tenors');
-const bnpl_provider = require('./Bnpl_providers');
+const tenor = require('./tenors');
+const bnpl_provider = require('./bnpl_providers');
 
 dotenv.config();
 
@@ -36,6 +36,10 @@ const bnpl_personalSchema = new mongoose.Schema({
         type: Date,
         required: [true, 'Issue Date is required'],
     },
+    expirationDate: {
+        type: Date,
+        required: [true, 'Expiration Date is required'],
+    },
     city: {
         type: String,
         required: [true, 'City is required'],
@@ -51,6 +55,21 @@ const bnpl_personalSchema = new mongoose.Schema({
     street: {
         type: String
     },
+    temporaryCity: {
+        type: String,
+        required: [true, 'Temporary city is required'],
+    },
+    temporaryDistrict: {
+        type: String,
+        required: [true, 'Temporary district is required'],
+    },
+    temporaryWard: {
+        type: String,
+        required: [true, 'Temporary ward is required'],
+    },
+    temporaryStreet: {
+        type: String
+    },
     personal_title_ref: {
         type: String,
         required: [true, 'Personal Title Ref is required'],
@@ -63,9 +82,25 @@ const bnpl_personalSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Phone Ref is required'],
     },
+    status: {
+        type: Boolean,
+        default: false
+    },
     providers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'bnpl_provider' }],
     items: [{ type: mongoose.Schema.Types.ObjectId, ref: 'item' }],
     tenor: { type: mongoose.Schema.Types.ObjectId, ref: 'tenor' },
+    nid_front_image: {
+        type: String,
+        required: [true, 'Nid front image is required'],
+    },
+    nid_back_image: {
+        type: String,
+        required: [true, 'Nid back image is required'],
+    },
+    selfie_image: {
+        type: String,
+        required: [true, 'Selfie image is required'],
+    },
     credit_limit: {
         type: Number,
     },
@@ -80,7 +115,7 @@ const bnpl_personalSchema = new mongoose.Schema({
     },
     memo_credit: {
         type: Number,
-    },
+    }
 
 }, { timestamps: true });
 

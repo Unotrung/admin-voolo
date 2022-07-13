@@ -1,4 +1,4 @@
-const Config = require('../models/Config');
+const Config = require('../models/configs');
 const { MSG_GET_LIST_SUCCESSFULLY, MSG_LIST_IS_EMPTY, MSG_UPDATE_SUCCESSFULLY, MSG_UPDATE_FAILURE, MSG_ENTER_ALL_FIELDS, MSG_DATA_NOT_FOUND }
     = require('../config/message/message');
 

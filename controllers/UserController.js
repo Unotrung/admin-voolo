@@ -1,7 +1,7 @@
-const User_Provider = require('../models/User_Provider');
-const Bnpl_Personal = require('../models/Bnpl_Personal');
-const Bnpl_Customer = require('../models/Bnpl_Customer');
-const Eap_Customer = require('../models/EAP_Customer');
+const User_Provider = require('../models/user_providers');
+const Bnpl_Personal = require('../models/bnpl_personals');
+const Bnpl_Customer = require('../models/bnpl_customers');
+const Eap_Customer = require('../models/eap_customers');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { MSG_GET_LIST_SUCCESSFULLY, MSG_LIST_IS_EMPTY, MSG_UPDATE_SUCCESSFULLY, MSG_UPDATE_FAILURE, MSG_ENTER_ALL_FIELDS,
@@ -38,7 +38,7 @@ const UserController = {
             const users = await User_Provider.find();
             let result = [];
             users.map((user, index) => {
-                let { password, isAdmin, __v, ...others } = user._doc;
+                let { password, isAdmin, __v, createdAt, updatedAt, ...others } = user._doc;
                 result.push({ ...others });
             })
             if (users.length > 0) {
@@ -68,7 +68,7 @@ const UserController = {
             const users = await Eap_Customer.find();
             let result = [];
             users.map((user, index) => {
-                let { password, __v, ...others } = user._doc;
+                let { password, __v, createdAt, updatedAt, ...others } = user._doc;
                 result.push({ ...others });
             })
             if (users.length > 0) {
@@ -98,7 +98,7 @@ const UserController = {
             const users = await Bnpl_Customer.find();
             let result = [];
             users.map((user, index) => {
-                let { pin, __v, ...others } = user._doc;
+                let { pin, __v, createdAt, updatedAt, ...others } = user._doc;
                 result.push({ ...others });
             })
             if (users.length > 0) {
@@ -128,7 +128,7 @@ const UserController = {
             const users = await Bnpl_Personal.find();
             let result = [];
             users.map((user, index) => {
-                let { providers, items, tenor, credit_limit, __v, ...others } = user._doc;
+                let { providers, items, tenor, credit_limit, __v, createdAt, updatedAt, ...others } = user._doc;
                 result.push({ ...others });
             })
             if (users.length > 0) {
@@ -157,7 +157,7 @@ const UserController = {
         try {
             const user = await Eap_Customer.findById(req.params.id);
             if (user) {
-                const { password, __v, ...others } = user._doc;
+                const { password, __v, createdAt, updatedAt, ...others } = user._doc;
                 return res.status(200).json({
                     message: MSG_GET_DETAIL_SUCCESS,
                     data: { ...others },
@@ -181,7 +181,7 @@ const UserController = {
         try {
             const user = await Bnpl_Personal.findById(req.params.id).populate('providers');
             if (user) {
-                const { items, tenor, __v, ...others } = user._doc;
+                const { items, tenor, createdAt, updatedAt, __v, ...others } = user._doc;
                 return res.status(200).json({
                     message: MSG_GET_DETAIL_SUCCESS,
                     data: { ...others },
@@ -214,7 +214,7 @@ const UserController = {
                     const hashed = await bcrypt.hash(password, salt);
                     const user = await new User_Provider({ username: username, password: hashed });
                     await user.save()
-                        .then((data) => {
+                        .then(() => {
                             return res.status(201).json({
                                 message: MSG_ADD_SUCCESS,
                                 status: true
@@ -269,8 +269,8 @@ const UserController = {
                     const refreshToken = UserController.generateRefreshToken(user);
                     user.refreshToken = refreshToken;
                     await user.save()
-                        .then((data) => {
-                            const { password, isAdmin, __v, ...others } = user._doc;
+                        .then(() => {
+                            const { password, isAdmin, __v, createdAt, updatedAt, ...others } = user._doc;
                             return res.status(200).json({
                                 message: MSG_LOGIN_SUCCESS,
                                 data: { ...others },
@@ -312,7 +312,7 @@ const UserController = {
                     let newRefreshToken = UserController.generateRefreshToken(customer);
                     customer.refreshToken = newRefreshToken;
                     await customer.save()
-                        .then((data) => {
+                        .then(() => {
                             return res.status(201).json({
                                 message: MSG_UPDATE_SUCCESSFULLY,
                                 accessToken: newAccessToken,
@@ -375,7 +375,7 @@ const UserController = {
                     let steps = customers.filter(x => x.step === Number(value));
                     let arrStep = [];
                     steps.map((item, index) => {
-                        let { deleted, refreshToken, loginAttempts, pin, __v, ...others } = item._doc;
+                        let { deleted, refreshToken, loginAttempts, pin, __v, createdAt, updatedAt, ...others } = item._doc;
                         arrStep.push({ ...others });
                     });
                     personals.map(x => {
@@ -526,13 +526,13 @@ const UserController = {
                         user_eap = (filters.phone !== null && filters.phone !== undefined) ? user_eap.filter(obj => obj.phone === filters.phone) : user_eap;
                         if (user_eap.length > 0) {
                             user_eap.map((user, index) => {
-                                let { password, isAdmin, __v, ...others } = user._doc;
+                                let { password, isAdmin, __v, createdAt, updatedAt, ...others } = user._doc;
                                 user_eap_arr.push({ ...others });
                             })
                             if (user_eap_arr.length > 0) {
                                 user_bnpl_ref = user_bnpls.filter(x => x.phone === user_eap_arr[0].phone);
                                 if (user_bnpl_ref.length > 0) {
-                                    let { providers, items, tenor, credit_limit, __v, ...others } = user_bnpl_ref[0]._doc;
+                                    let { providers, items, tenor, credit_limit, __v, createdAt, updatedAt, ...others } = user_bnpl_ref[0]._doc;
                                     user_bnpl_ref = { ...others };
                                 }
                                 else {
@@ -549,13 +549,13 @@ const UserController = {
                         user_bnpl = (filters.citizenId !== null && filters.citizenId !== undefined) ? user_bnpl.filter(obj => obj.citizenId === filters.citizenId) : user_bnpl;
                         if (user_bnpl.length > 0) {
                             user_bnpl.map((user, index) => {
-                                let { providers, items, tenor, credit_limit, __v, ...others } = user._doc;
+                                let { providers, items, tenor, credit_limit, __v, createdAt, updatedAt, ...others } = user._doc;
                                 user_bnpl_arr.push({ ...others });
                             })
                             if (user_bnpl_arr.length > 0) {
                                 user_eap_ref = user_eaps.filter(x => x.phone === user_bnpl_arr[0].phone);
                                 if (user_eap_ref.length > 0) {
-                                    let { __v, password, ...others } = user_eap_ref[0]._doc;
+                                    let { __v, createdAt, updatedAt, password, ...others } = user_eap_ref[0]._doc;
                                     user_eap_ref = { ...others };
                                 }
                                 else {
@@ -940,7 +940,7 @@ const UserController = {
             const trashUsers = users.filter(x => x.deleted === Boolean(true));
             let result = [];
             trashUsers.map((user, index) => {
-                let { pin, __v, ...others } = user._doc;
+                let { pin, __v, createdAt, updatedAt, ...others } = user._doc;
                 result.push({ ...others });
             })
             if (trashUsers.length > 0) {
@@ -971,7 +971,7 @@ const UserController = {
             const trashUsers = users.filter(x => x.deleted === Boolean(true));
             let result = [];
             trashUsers.map((user, index) => {
-                let { password, __v, ...others } = user._doc;
+                let { password, __v, createdAt, updatedAt, ...others } = user._doc;
                 result.push({ ...others });
             })
             if (trashUsers.length > 0) {
@@ -1029,7 +1029,7 @@ const UserController = {
                 if (customer) {
                     customer.refreshToken = null;
                     await customer.save()
-                        .then((data) => {
+                        .then(() => {
                             return res.status(201).json({
                                 message: MSG_LOG_OUT_SUCCESS,
                                 status: true
